@@ -10,7 +10,7 @@ import java.awt.*;
 
 
 /**
- * Created by Danielle98 on 11/7/2016.
+ * Created by Hernandez, Amora, Acal, Serato
  */
 public class Level {
     public int width = 100, height = 100;
