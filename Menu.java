@@ -19,7 +19,10 @@ public class Menu extends BasicGameState{
 	public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
 		Image bg = new Image("res/bg.png");
 		g.drawImage(bg,0,0);
-
+		
+		// FIXME never tested things below comment
+		Music music = new Music("res/main_menu_background_music.ogg");
+		music.play();
 	}
 
 
