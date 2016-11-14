@@ -1,13 +1,11 @@
-import org.lwjgl.input.Mouse;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.*;
+import org.lwjgl.input.Mouse;
 
-public class PlayScreen extends BasicGameState{
-	Image hermes;
-	int x = 10;
-	int y = 300;
+public class Menu extends BasicGameState{
 	
-	public PlayScreen(int state){
+	
+	public Menu(int state){
 		
 	}
 
@@ -17,24 +15,32 @@ public class PlayScreen extends BasicGameState{
 	}
 
 
+	//WHERE YOU PUT THE GRAPHICS THAT WILL SHOW ON THE SCREEN
 	public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
-		Image bg = new Image("res/Map.png");
+		Image bg = new Image("res/bg.png");
 		g.drawImage(bg,0,0);
-		
+
 	}
 
 
 	public void update(GameContainer gc, StateBasedGame sbg, int delta)throws SlickException {
 		Input input = gc.getInput();
+		int xMouse = Mouse.getX();
+		int yMouse = Mouse.getY();
 
+		if(input.isKeyPressed(Input.KEY_SPACE)){
+			sbg.enterState(1);
+		}
 
-			if(input.isKeyPressed(Input.KEY_SPACE)){
-				sbg.enterState(3);
+		if((xMouse > 488 && xMouse < 633)&& (yMouse > 136 && yMouse < 187 )){ //
+			if(input.isMouseButtonDown(0)){
+				sbg.enterState(1);
 			}
+		}
 	}
 
 
 	public int getID() {
-		return 1;
+		return 0;
 	}
 }
