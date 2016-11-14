@@ -1,3 +1,4 @@
+import org.lwjgl.input.Mouse;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.*;
 
@@ -12,25 +13,24 @@ public class PlayScreen extends BasicGameState{
 
 
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
-		hermes = new Image("res/hermes.png");
 		
 	}
 
 
 	public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
-		Image bg = new Image("res/Pics.png");
+		Image bg = new Image("res/Map.png");
 		g.drawImage(bg,0,0);
-		g.drawImage(hermes,x,y);
 		
 	}
 
 
 	public void update(GameContainer gc, StateBasedGame sbg, int delta)throws SlickException {
 		Input input = gc.getInput();
-		if(input.isKeyDown(Input.KEY_UP)){y -= 1;}
-		if(input.isKeyDown(Input.KEY_DOWN)){y += 1;}	
-		if(input.isKeyDown(Input.KEY_LEFT)){x -= 1;}
-		if(input.isKeyDown(Input.KEY_RIGHT)){x += 1;}	
+
+
+			if(input.isKeyPressed(Input.KEY_SPACE)){
+				sbg.enterState(3);
+			}
 	}
 
 
