@@ -4,7 +4,7 @@ import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
 /**
- * Created by Danielle98 on 11/14/2016.
+ * Created by Serato, Acal, Amora, Hernandez on 11/14/2016.
  */
 public class Parthenon extends BasicGameState {
     private Apollo player;
@@ -22,80 +22,109 @@ public class Parthenon extends BasicGameState {
         int frame = 0;
         Image bg = new Image("res/Parthenon.png");
         Image apolloConstant = new Image("res/ApolloWalk2.png");
-        g.drawImage(bg,0,0);
+        g.drawImage(bg, 0, 0);
+
+        AI(gc, sbg, g);
+
         if (player.move) {
-            if (player.jump) {
-                player.apolloJUM.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
-                player.jump();
-            } else {
+            if (player.onceJumped) {
+                if (player.atk) {
+                    player.jump(player.apolloATK);
+                } else {
+                    player.jump();
+                }
+            }
+            else if (player.atk) {
+                player.apolloATK.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
+            }
+            else {
                 player.apolloAnimate.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
             }
             player.move = false;
         }
         else if (player.atk){
-            player.apolloATK.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
-            if (player.jump) {
-                player.jump();
+            if (player.onceJumped) {
+                player.jump(player.apolloATK);
+            } else {
+                player.apolloATK.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
             }
             player.atk = false;
         }
         else if (player.crouch) {
-            player.jump = false;
+            player.y = 250;
             player.apolloCRO.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
             player.crouch = false;
         }
-        else if (player.jump){
-            player.apolloJUM.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
+        else if (player.onceJumped) {
             player.jump();
         }
         else {
-            player.y = 250;
-            player.descending = false;
             g.drawImage(apolloConstant.getFlippedCopy(player.direction,false), player.x, player.y);
         }
-        AI(gc, sbg, g);
+
+
     }
 
     // FIXME not functional yet
     public void AI(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
         Image apolloAI = new Image("res/ApolloWalk2.png");
-        if (!(isNear())) {
-            ai.apolloAnimate.getCurrentFrame().getFlippedCopy(ai.direction, false).draw(ai.x, ai.y);
+        if (!(ai.isNear(player, 200)) && !(ai.isNear(player, 10))) {
+            System.out.println("RUNFOYALAYF");
+            if (player.x > ai.x) { // go Right
+                ai.direction = false;
+                ai.move = true;
+                ai.firstTimeOnLeft = true;
+                if (ai.firstTimeOnRight) {
+                    ai.x += 70;
+                    ai.firstTimeOnRight = false;
+                } else {
+                    ai.x += 1;
+                }
+            } else { // go Left
+                ai.direction = true;
+                ai.move = true;
+                ai.firstTimeOnRight = true;
+                if (ai.firstTimeOnLeft) {
+                    ai.x -= 70;
+                    ai.firstTimeOnLeft = false;
+                } else {
+                    ai.x -= 1;
+                }
+            }
+            ai.apolloAnimate.getCurrentFrame().getFlippedCopy(player.direction, false).draw(ai.x, ai.y);
             ai.move = false;
-        } else if (ai.atk) {
+        }
+        else if (ai.isNear(player, 10)) {
             ai.apolloATK.getCurrentFrame().getFlippedCopy(ai.direction, false).draw(ai.x, ai.y);
+            System.out.println("HIT HIM");
             ai.atk = false;
-        } else if (ai.crouch) {
+        }
+        else if (player.atk) {
             ai.apolloCRO.getCurrentFrame().getFlippedCopy(ai.direction, false).draw(ai.x, ai.y);
             ai.crouch = false;
-        } else if (ai.jump) {
-            ai.apolloJUM.getCurrentFrame().getFlippedCopy(ai.direction, false).draw(ai.x, ai.y);
-            ai.jump = false;
-        } else {
+        }
+        else {
+            System.out.println("tweet tweet");
             g.drawImage(apolloAI.getFlippedCopy(ai.direction, false), ai.x, ai.y);
         }
     }
 
-    private boolean isNear() {
-        // TODO stub only
-        return false;
-    }
-
-
     public void update(GameContainer gc, StateBasedGame sbg, int delta)throws SlickException {
         player.apolloAnimate.update(delta);
         player.apolloATK.update(delta);
+        ai.apolloAnimate.update(delta);
+        ai.apolloATK.update(delta);
         Input input = gc.getInput();
-        //if(input.isKeyDown(Input.KEY_UP)){y -= 1;}
-        //if(input.isKeyDown(Input.KEY_DOWN)){y += 1;}
+
         if(input.isKeyDown(Input.KEY_A)){
             player.atk = true;
+            ai.atk = true;
         }
         if(input.isKeyDown(Input.KEY_DOWN)) {
             player.crouch = true;
         }
         else if (input.isKeyDown(Input.KEY_UP)) {
-            player.jump = true;
+            player.onceJumped = true;
         }
         if(input.isKeyDown(Input.KEY_LEFT) && player.x > -200) {
             if (player.x > 500) {
@@ -125,6 +154,8 @@ public class Parthenon extends BasicGameState {
                 player.x += 1;
             }
         }
+
+        ai.atk = ai.isNear(player, 10);
     }
 
 
@@ -145,10 +176,10 @@ public class Parthenon extends BasicGameState {
         private int x = 10;
         private int y = 250;
         private boolean descending = false;
+        private boolean onceJumped = false;
         private boolean move = false;
         private boolean atk = false;
         private boolean crouch = false;
-        private boolean jump = false;
         private boolean direction = false;
         private boolean firstTimeOnLeft = false;
         private boolean firstTimeOnRight = false;
@@ -164,7 +195,16 @@ public class Parthenon extends BasicGameState {
             apolloJUM = new Animation(apolloJump, 150);
         }
 
+        public boolean isNear(Apollo opponent, int distance){
+            return this.x >= opponent.x - distance && this.x <= opponent.x + distance;
+        }
+
         public void jump() {
+            jump(apolloJUM);
+        }
+
+        public void jump(Animation anim) {
+            anim.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
             if (!(descending)) {
                 y -= 1;
                 if (y == 150) {
@@ -174,11 +214,12 @@ public class Parthenon extends BasicGameState {
             else {
                 if (y < 250) {
                     y += 1;
-                } else {
+                }
+                else {
+                    onceJumped = false;
                     descending = false;
                 }
             }
-            jump = false;
         }
     }
 }
