@@ -8,21 +8,19 @@ import org.newdawn.slick.state.StateBasedGame;
 class Parthenon extends BasicGameState {
     private RPGCharacter player;
     private RPGCharacter ai;
+    private Animation bg;
 
     Parthenon() {
     }
 
     public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
         player = new Apollo();
-        ai = new Apollo(350);
+        ai = new Athena(350, true);
+        bg = new Animation(new SpriteSheet("res/Maps/Parthenons.png", 700, 500), 1500);
     }
 
     public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
-        Image bg = new Image("res/Maps/Parthenon.png");
-        Image apolloConstant = new Image("res/Characters/Apollo/ApolloWalk2.png");
-        g.drawImage(bg, 0, 0);
-
-        AI(g);
+        bg.draw(0, 0);
 
         if (player.move) {
             if (player.onceJumped) {
@@ -51,65 +49,61 @@ class Parthenon extends BasicGameState {
         } else if (player.onceJumped) {
             player.jump();
         } else {
-            g.drawImage(apolloConstant.getFlippedCopy(player.direction, false), player.x, player.y);
+            g.drawImage(player.staticImage.getFlippedCopy(player.direction, false), player.x, player.y);
         }
 
-
+        AI(g);
     }
 
     private void AI(Graphics g) throws SlickException {
-        Image apolloAI = new Image("res/Characters/Apollo/ApolloWalk2.png");
-        if (!(ai.isNear(player, 150)) && !(ai.isNear(player, 10))) {
-            if (player.x > ai.x) { // go Right
-                ai.direction = false;
-                ai.move = true;
-                ai.firstTimeOnLeft = true;
-                if (ai.firstTimeOnRight) {
-                    ai.x += 70;
-                    ai.firstTimeOnRight = false;
-                } else {
-                    ai.x += 1;
-                }
-            } else { // go Left
-                ai.direction = true;
-                ai.move = true;
-                ai.firstTimeOnRight = true;
-                if (ai.firstTimeOnLeft) {
-                    ai.x -= 70;
-                    ai.firstTimeOnLeft = false;
-                } else {
-                    ai.x -= 1;
-                }
+        if (ai.atk) { // ATTACK
+            editDirection();
+            if (ai.realX > player.realX) {
+                ai.charATK.getCurrentFrame().getFlippedCopy(true, false).draw(ai.x, ai.y);
+            } else {
+                ai.charATK.getCurrentFrame().getFlippedCopy(false, false).draw(ai.x, ai.y);
             }
-            ai.charAnimate.getCurrentFrame().getFlippedCopy(player.direction, false).draw(ai.x, ai.y);
-            ai.move = false;
-        } else if (ai.isNear(player, 10)) {
-            // FIXME sloppy conversion below
-            if (player.x > ai.x) { // go Right
-                ai.direction = false;
-                ai.move = true;
-                ai.firstTimeOnLeft = true;
-                if (ai.firstTimeOnRight) {
-                    ai.x += 70;
-                    ai.firstTimeOnRight = false;
-                }
-            }
-            else { // go Left
-                ai.direction = true;
-                ai.move = true;
-                ai.firstTimeOnRight = true;
-                if (ai.firstTimeOnLeft) {
-                    ai.x -= 70;
-                    ai.firstTimeOnLeft = false;
-                }
-            }
-            ai.charATK.getCurrentFrame().getFlippedCopy(ai.direction, false).draw(ai.x, ai.y);
             ai.atk = false;
-        } else if (player.atk) {
-            ai.charCRO.getCurrentFrame().getFlippedCopy(ai.direction, false).draw(ai.x, ai.y);
-            ai.crouch = false;
+        } else if (ai.move) { // WALK TOWARDS PLAYER
+            editDirection();
+            if (ai.realX > player.realX) {
+                ai.direction = true;
+                ai.x--;
+                ai.realX--;
+            } else if (ai.realX < player.realX) {
+                ai.direction = false;
+                ai.x++;
+                ai.realX++;
+            }
+            if (ai.realX > player.realX) {
+                ai.charAnimate.getCurrentFrame().getFlippedCopy(true, false).draw(ai.x, ai.y);
+            } else {
+                ai.charAnimate.getCurrentFrame().getFlippedCopy(false, false).draw(ai.x, ai.y);
+            }
         } else {
-            g.drawImage(apolloAI.getFlippedCopy(ai.direction, false), ai.x, ai.y);
+            if (ai.realX < player.realX) {
+                g.drawImage(ai.staticImage.getFlippedCopy(false, false), ai.x, ai.y);
+            } else {
+                g.drawImage(ai.staticImage.getFlippedCopy(true, false), ai.x, ai.y);
+            }
+        }
+    }
+
+    private void editDirection() {
+        if (ai.realX > player.realX) { // pla - ai
+            ai.direction = true;
+            ai.firstTimeOnRight = true;
+            if (ai.firstTimeOnLeft) {
+                ai.x -= 70;
+                ai.firstTimeOnLeft = false;
+            }
+        } else if (ai.realX < player.realX) { // ai <- pla
+            ai.direction = false;
+            ai.firstTimeOnLeft = true;
+            if (ai.firstTimeOnRight) {
+                ai.x += 70;
+                ai.firstTimeOnRight = false;
+            }
         }
     }
 
@@ -118,6 +112,8 @@ class Parthenon extends BasicGameState {
         player.charATK.update(delta);
         ai.charAnimate.update(delta);
         ai.charATK.update(delta);
+        bg.update(delta);
+
         Input input = gc.getInput();
 
         if (input.isKeyDown(Input.KEY_A)) {
@@ -132,6 +128,7 @@ class Parthenon extends BasicGameState {
         if (input.isKeyDown(Input.KEY_LEFT) && player.x > -200) {
             if (player.x > 500) {
                 player.x = 500;
+                player.realX = 500;
             }
             player.direction = true;
             player.move = true;
@@ -140,12 +137,14 @@ class Parthenon extends BasicGameState {
                 player.x -= 70;
                 player.firstTimeOnLeft = false;
             } else {
-                player.x -= 1;
+                player.x--;
+                player.realX--;
             }
         }
         if (input.isKeyDown(Input.KEY_RIGHT) && player.x < 550) {
             if (player.x < -100) {
                 player.x = -100;
+                player.realX = -100;
             }
             player.direction = false;
             player.move = true;
@@ -154,11 +153,13 @@ class Parthenon extends BasicGameState {
                 player.x += 70;
                 player.firstTimeOnRight = false;
             } else {
-                player.x += 1;
+                player.x++;
+                player.realX++;
             }
         }
 
-        ai.atk = ai.isNear(player, 10);
+        ai.atk = ai.isNear(player, 40);
+        ai.move = !(ai.isNear(player, 150));
     }
 
 
