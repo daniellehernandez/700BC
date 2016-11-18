@@ -5,50 +5,53 @@ import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
 class PlayScreen extends BasicGameState{
-	private boolean animate = false;
+    private boolean animate = false;
     private Animation cloudAnimate;
     private boolean start = true;
-	
-	PlayScreen(){
-		
-	}
+
+    PlayScreen(){
+
+    }
 
 
-	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
-        cloudAnimate = new Animation(new SpriteSheet("res/Maps/clouuds.png.png",700,500), 300000);
-	}
+    public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
+        cloudAnimate = new Animation(new SpriteSheet("res/Maps/maps.png",700,500), 500);
+    }
 
 
-	public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
-		Image bg = new Image("res/Maps/Map.png");
-        Image cloudConstant = new Image("res/Maps/clouds1.png");
+    public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
+        Image bg = new Image("res/Maps/1.png");
+        Image cloudConstant = new Image("res/Maps/7.png");
+        int i = 0;
+        Image ct;
 
         if(start) {
-            g.drawImage(cloudConstant, 0, 0);
+            g.drawImage(bg, 0, 0);
         }else if(animate){
-            cloudAnimate.draw(0,0);
-            animate = false;
-        }else{
-            g.drawImage(bg,0,0);
+            cloudAnimate.setLooping(false);
+            cloudAnimate.draw(0, 0);
+            g.setColor(Color.black);
+            g.drawString("[Press Space]", 300, 450);
         }
-	}
+
+    }
 
 
-	public void update(GameContainer gc, StateBasedGame sbg, int delta)throws SlickException {
-		Input input = gc.getInput();
+    public void update(GameContainer gc, StateBasedGame sbg, int delta)throws SlickException {
+        Input input = gc.getInput();
+        cloudAnimate.update(delta);
+
+        if(input.isMouseButtonDown(Input.MOUSE_LEFT_BUTTON) && start && getID() == 1){
+            animate = true;
+            start = false;
+        }
+
+        if(input.isKeyPressed(Input.KEY_SPACE) && !start && getID() == 1 ){
+            sbg.enterState(3); //REDIRECTED AUTOMATICALLY IN PARTHENON FOR D MEANTIME
+        }
 
 
-            if(input.isKeyPressed(Input.KEY_ENTER) && start){
-                cloudAnimate.update(delta);
-                animate = true;
-                start = false;
-            }
-			if(input.isKeyPressed(Input.KEY_SPACE)){
-				sbg.enterState(3);
-			}
-	}
-
-
+    }
 	public int getID() {
 		return 1;
 	}

@@ -1,9 +1,13 @@
 package SevenDoubleZero.Game;
 
-import SevenDoubleZero.Characters.*;
+import SevenDoubleZero.Characters.Apollo;
+import SevenDoubleZero.Characters.Athena;
+import SevenDoubleZero.Characters.RPGCharacter;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
+
+import javax.swing.*;
 
 class Parthenon extends BasicGameState {
     private RPGCharacter player;
@@ -21,27 +25,36 @@ class Parthenon extends BasicGameState {
 
     public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
         bg.draw(0, 0);
+        g.drawString("Your HP: " + player.getHealth(), 50, 10);
+        g.drawString("Enemy HP: " + ai.getHealth(), 250, 10);
+        JFrame frame = new JFrame("Game Over");
 
-        if (player.move) {
-            if (player.onceJumped) {
-                if (player.atk) {
-                    player.jump(player.charATK);
-                } else {
-                    player.jump();
-                }
-            } else if (player.atk) {
-                player.charATK.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
-            } else {
-                player.charAnimate.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
+        if (player.atk) {
+            if (player.charATK.getCurrentFrame().equals(player.charATK.getImage(3))) {
+                player.attacked = true;
             }
-            player.move = false;
-        } else if (player.atk) {
+            else if (player.charATK.getCurrentFrame().equals(player.charATK.getImage(4)) && player.attacked) {
+                ai.takeDamage((float) 25);
+                player.attacked = false;
+            }
+            if (!ai.isAlive()) {
+                JOptionPane.showMessageDialog(frame, "Congratulations! You just have defeated AI " + ai.name, "You won", JOptionPane.OK_OPTION);
+                gc.exit();
+            }
             if (player.onceJumped) {
                 player.jump(player.charATK);
             } else {
                 player.charATK.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
             }
             player.atk = false;
+        } else if (player.move) {
+            if (player.onceJumped) {
+                player.jump();
+            }
+            else {
+                player.charAnimate.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
+            }
+            player.move = false;
         } else if (player.crouch) {
             player.y = 250;
             player.charCRO.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
@@ -52,16 +65,27 @@ class Parthenon extends BasicGameState {
             g.drawImage(player.staticImage.getFlippedCopy(player.direction, false), player.x, player.y);
         }
 
-        AI(g);
+        AI(g, gc, frame);
     }
 
-    private void AI(Graphics g) throws SlickException {
+    private void AI(Graphics g, GameContainer gc, JFrame frame) throws SlickException {
         if (ai.atk) { // ATTACK
             editDirection();
             if (ai.realX > player.realX) {
                 ai.charATK.getCurrentFrame().getFlippedCopy(true, false).draw(ai.x, ai.y);
             } else {
                 ai.charATK.getCurrentFrame().getFlippedCopy(false, false).draw(ai.x, ai.y);
+            }
+            if (ai.charATK.getCurrentFrame().equals(ai.charATK.getImage(3))) {
+                ai.attacked = true;
+            }
+            else if (ai.charATK.getCurrentFrame().equals(ai.charATK.getImage(4)) && ai.attacked) {
+                player.takeDamage((float) 20);
+                ai.attacked = false;
+            }
+            if (!player.isAlive()) {
+                JOptionPane.showMessageDialog(frame, "You were killed by AI " + ai.name + ".", "You lost", JOptionPane.OK_OPTION);
+                gc.exit();
             }
             ai.atk = false;
         } else if (ai.move) { // WALK TOWARDS PLAYER
