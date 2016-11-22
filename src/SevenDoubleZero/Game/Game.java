@@ -16,7 +16,7 @@ public class Game extends StateBasedGame{
 		super(Name);
 		this.addState(new Menu());
 		this.addState(new PlayScreen());
-		this.addState(new Parthenon());
+		this.addState(new GamePlatform());
 		this.addState(new CharInput());
 	}
 
