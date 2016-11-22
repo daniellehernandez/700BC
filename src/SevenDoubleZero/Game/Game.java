@@ -9,6 +9,7 @@ public class Game extends StateBasedGame{
 	private static final String Name = "700 BC";
 	private static final int Menu = 0;
 	private static final int PlayScreen = 1;
+	private static final int Input = 2;
 	private static final int Parthenon = 3;
 
 	private Game(String Name){
@@ -16,6 +17,7 @@ public class Game extends StateBasedGame{
 		this.addState(new Menu());
 		this.addState(new PlayScreen());
 		this.addState(new Parthenon());
+		this.addState(new CharInput());
 	}
 
 

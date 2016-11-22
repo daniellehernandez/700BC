@@ -21,9 +21,6 @@ class PlayScreen extends BasicGameState{
 
     public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
         Image bg = new Image("res/Maps/1.png");
-        Image cloudConstant = new Image("res/Maps/7.png");
-        int i = 0;
-        Image ct;
 
         if(start) {
             g.drawImage(bg, 0, 0);
@@ -47,7 +44,7 @@ class PlayScreen extends BasicGameState{
         }
 
         if(input.isKeyPressed(Input.KEY_SPACE) && !start && getID() == 1 ){
-            sbg.enterState(3); //REDIRECTED AUTOMATICALLY IN PARTHENON FOR D MEANTIME
+            sbg.enterState(3);
         }
 
 

@@ -6,8 +6,11 @@ import org.newdawn.slick.SlickException;
 
 public abstract class RPGCharacter {
     public String name;
-    private float health;
+    private int health;
     private int manna;
+    private int damage;
+    private int spDamage;
+    private int pan;
 
     public Image staticImage;
     public Animation charAnimate;
@@ -28,11 +31,11 @@ public abstract class RPGCharacter {
     public boolean firstTimeOnRight = true;
     public boolean attacked = false;
 
-    RPGCharacter(Image staticImage, Animation charAnimate, Animation charATK, Animation charCRO, Animation charJUM, int health, int manna, String name) throws SlickException {
-        this(staticImage, charAnimate, charATK, charCRO, charJUM, health, manna, 10, false, name);
+    RPGCharacter(Image staticImage, Animation charAnimate, Animation charATK, Animation charCRO, Animation charJUM, int health, int manna, int damage, int spDamage, int pan, String name) throws SlickException {
+        this(staticImage, charAnimate, charATK, charCRO, charJUM, health, manna, 10, damage, spDamage, pan, false, name);
     }
 
-    RPGCharacter(Image staticImage, Animation charAnimate, Animation charATK, Animation charCRO, Animation charJUM, int health, int manna, int x, boolean direction, String name) throws SlickException {
+    RPGCharacter(Image staticImage, Animation charAnimate, Animation charATK, Animation charCRO, Animation charJUM, int health, int manna, int damage, int spDamage, int pan, int x, boolean direction, String name) throws SlickException {
         this.staticImage = staticImage;
         this.charAnimate = charAnimate;
         this.charATK = charATK;
@@ -40,26 +43,13 @@ public abstract class RPGCharacter {
         this.charJUM = charJUM;
         this.health = health;
         this.manna = manna;
+        this.damage = damage;
+        this.spDamage = spDamage;
+        this.pan = pan;
         this.x = x;
         this.realX = x;
         this.direction = direction;
         this.name = name;
-    }
-
-    public boolean isNear(RPGCharacter opponent, int distance, boolean shift) {
-        if (shift) {
-            return this.realX >= opponent.realX - distance && this.realX <= opponent.realX + distance;
-        } else {
-            boolean ret = this.realX >= opponent.realX - distance && this.realX <= opponent.realX + distance;
-            if (ret) {
-                if (this.realX >= opponent.realX - distance && this.realX <= opponent.realX) { // op -- this
-                    this.direction = true;
-                } else { // this -- op
-                    this.direction = false;
-                }
-            }
-            return ret;
-        }
     }
 
     public boolean isNear(RPGCharacter opponent, int distance) {
@@ -95,14 +85,32 @@ public abstract class RPGCharacter {
         }
     }
 
-
-
-    public float getHealth() {
+    public int getHealth() {
         return health;
     }
 
-    public void setHealth(float health) {
+    public void setHealth(int health) {
         this.health = health;
+    }
+
+    public int getDamage() {
+        return damage;
+    }
+
+    public void setDamage(int damage) {
+        this.damage = damage;
+    }
+
+    public int getSpDamage() {
+        return spDamage;
+    }
+
+    public void setSpDamage(int spDamage) {
+        this.spDamage = spDamage;
+    }
+
+    public int getPan() {
+        return pan;
     }
 
     public int getManna() {
@@ -113,7 +121,7 @@ public abstract class RPGCharacter {
         this.manna = manna;
     }
 
-    public void takeDamage(float damage){
+    public void takeDamage(int damage){
         setHealth(getHealth() - damage);
     }
 

@@ -2,6 +2,7 @@ package SevenDoubleZero.Game;
 
 import SevenDoubleZero.Characters.Apollo;
 import SevenDoubleZero.Characters.Athena;
+import SevenDoubleZero.Characters.Melee;
 import SevenDoubleZero.Characters.RPGCharacter;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
@@ -25,7 +26,7 @@ class Parthenon extends BasicGameState {
 
     public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
         bg.draw(0, 0);
-        g.drawString("Your HP: " + player.getHealth(), 50, 10);
+        g.drawString("Your HP: " + player.getHealth(), 100, 10);
         g.drawString("Enemy HP: " + ai.getHealth(), 250, 10);
         JFrame frame = new JFrame("Game Over");
 
@@ -34,7 +35,7 @@ class Parthenon extends BasicGameState {
                 player.attacked = true;
             }
             else if (player.charATK.getCurrentFrame().equals(player.charATK.getImage(4)) && player.attacked) {
-                ai.takeDamage((float) 25);
+                ai.takeDamage(player.getDamage());
                 player.attacked = false;
             }
             if (!ai.isAlive()) {
@@ -80,7 +81,7 @@ class Parthenon extends BasicGameState {
                 ai.attacked = true;
             }
             else if (ai.charATK.getCurrentFrame().equals(ai.charATK.getImage(4)) && ai.attacked) {
-                player.takeDamage((float) 20);
+                player.takeDamage(ai.getDamage());
                 ai.attacked = false;
             }
             if (!player.isAlive()) {
@@ -91,13 +92,25 @@ class Parthenon extends BasicGameState {
         } else if (ai.move) { // WALK TOWARDS PLAYER
             editDirection();
             if (ai.realX > player.realX) {
-                ai.direction = true;
-                ai.x--;
-                ai.realX--;
+                if (ai instanceof Melee) {
+                    ai.direction = true;
+                    ai.x--;
+                    ai.realX--;
+                } else {
+                    ai.direction = false;
+                    ai.x++;
+                    ai.realX++;
+                }
             } else if (ai.realX < player.realX) {
-                ai.direction = false;
-                ai.x++;
-                ai.realX++;
+                if (ai instanceof Melee) {
+                    ai.direction = false;
+                    ai.x++;
+                    ai.realX++;
+                } else {
+                    ai.direction = true;
+                    ai.x--;
+                    ai.realX--;
+                }
             }
             if (ai.realX > player.realX) {
                 ai.charAnimate.getCurrentFrame().getFlippedCopy(true, false).draw(ai.x, ai.y);
@@ -118,14 +131,14 @@ class Parthenon extends BasicGameState {
             ai.direction = true;
             ai.firstTimeOnRight = true;
             if (ai.firstTimeOnLeft) {
-                ai.x -= 70;
+                ai.x -= ai.getPan();
                 ai.firstTimeOnLeft = false;
             }
         } else if (ai.realX < player.realX) { // ai <- pla
             ai.direction = false;
             ai.firstTimeOnLeft = true;
             if (ai.firstTimeOnRight) {
-                ai.x += 70;
+                ai.x += ai.getPan();
                 ai.firstTimeOnRight = false;
             }
         }
@@ -142,7 +155,6 @@ class Parthenon extends BasicGameState {
 
         if (input.isKeyDown(Input.KEY_A)) {
             player.atk = true;
-            ai.atk = true;
         }
         if (input.isKeyDown(Input.KEY_DOWN)) {
             player.crouch = true;
@@ -158,7 +170,7 @@ class Parthenon extends BasicGameState {
             player.move = true;
             player.firstTimeOnRight = true;
             if (player.firstTimeOnLeft) {
-                player.x -= 70;
+                player.x -= player.getPan();
                 player.firstTimeOnLeft = false;
             } else {
                 player.x--;
@@ -174,16 +186,21 @@ class Parthenon extends BasicGameState {
             player.move = true;
             player.firstTimeOnLeft = true;
             if (player.firstTimeOnRight) {
-                player.x += 70;
+                player.x += player.getPan();
                 player.firstTimeOnRight = false;
             } else {
                 player.x++;
                 player.realX++;
             }
         }
-
-        ai.atk = ai.isNear(player, 40);
-        ai.move = !(ai.isNear(player, 150));
+        if (ai instanceof Melee) {
+            ai.atk = ai.isNear(player, 40);
+            ai.move = !(ai.isNear(player, 150));
+        }
+        else {
+            ai.atk = !(ai.isNear(player, 60));
+            ai.move = ai.isNear(player, 60);
+        }
     }
 
 
