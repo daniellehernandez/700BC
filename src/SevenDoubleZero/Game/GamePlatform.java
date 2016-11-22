@@ -10,12 +10,12 @@ import org.newdawn.slick.state.StateBasedGame;
 
 import javax.swing.*;
 
-class Parthenon extends BasicGameState {
+class GamePlatform extends BasicGameState {
     private RPGCharacter player;
     private RPGCharacter ai;
     private Animation bg;
 
-    Parthenon() {
+    GamePlatform() {
     }
 
     public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
