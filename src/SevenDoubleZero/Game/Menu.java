@@ -6,12 +6,18 @@ import org.lwjgl.input.Mouse;
 
 class Menu extends BasicGameState{
 	private Animation bg;
+	private Music bgMusic;
+	private Sound thunder;
 
 	Menu(){
 	}
 
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
 		bg = new Animation(new SpriteSheet("res/Maps/mm.png",700,500), 400);
+		bgMusic = new Music("res/Sounds/bg.wav");
+		thunder = new Sound("res/Sounds/thun.ogg");
+		bgMusic.play();
+		thunder.loop();
 	}
 
 	//WHERE YOU PUT THE GRAPHICS THAT WILL SHOW ON THE SCREEN

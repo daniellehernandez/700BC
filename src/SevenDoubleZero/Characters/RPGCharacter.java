@@ -1,8 +1,11 @@
 package SevenDoubleZero.Characters;
 
 import org.newdawn.slick.Animation;
+import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
+
+import javax.swing.*;
 
 public abstract class RPGCharacter {
     public String name;
@@ -21,6 +24,7 @@ public abstract class RPGCharacter {
     public int x;
     public int y = 250;
     public int realX;
+    public int hurtX;
     private boolean descending = false;
     public boolean onceJumped = false;
     public boolean move = false;
@@ -30,6 +34,7 @@ public abstract class RPGCharacter {
     public boolean firstTimeOnLeft = false;
     public boolean firstTimeOnRight = true;
     public boolean attacked = false;
+    public boolean hurt = false;
 
     RPGCharacter(Image staticImage, Animation charAnimate, Animation charATK, Animation charCRO, Animation charJUM, int health, int manna, int damage, int spDamage, int pan, String name) throws SlickException {
         this(staticImage, charAnimate, charATK, charCRO, charJUM, health, manna, 10, damage, spDamage, pan, false, name);
@@ -83,6 +88,32 @@ public abstract class RPGCharacter {
                 descending = false;
             }
         }
+    }
+
+    public void attack(RPGCharacter opponent, JFrame frame, GameContainer gc) {
+        if (charATK.getCurrentFrame().equals(charATK.getImage(3)) && ((direction && realX > opponent.realX) || (!direction && realX < opponent.realX))) {
+            attacked = true;
+        }
+        else if (charATK.getCurrentFrame().equals(charATK.getImage(4)) && attacked) {
+            opponent.takeDamage(getDamage());
+            attacked = false;
+            opponent.hurt = true;
+            if (opponent.realX < realX) {
+                opponent.hurtX = opponent.realX - 70;
+            } else {
+                opponent.hurtX = opponent.realX + 70;
+            }
+        }
+        if (!opponent.isAlive()) {
+            JOptionPane.showMessageDialog(frame, "Congratulations! You just have defeated AI " + opponent.name, "You won", JOptionPane.OK_OPTION);
+            gc.exit();
+        }
+        if (onceJumped) {
+            jump(charATK);
+        } else {
+            charATK.getCurrentFrame().getFlippedCopy(direction, false).draw(x, y);
+        }
+        atk = false;
     }
 
     public int getHealth() {
