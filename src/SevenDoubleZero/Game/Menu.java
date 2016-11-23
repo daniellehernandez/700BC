@@ -1,17 +1,26 @@
-package SevenDoubleZero.Game;
+package Game;
 
 import org.newdawn.slick.*;
+import org.newdawn.slick.Game;
+import org.newdawn.slick.Sound;
 import org.newdawn.slick.state.*;
 import org.lwjgl.input.Mouse;
 
 class Menu extends BasicGameState{
 	private Animation bg;
+	private Music bgMusic;
+	private org.newdawn.slick.Sound thunder;
+
 
 	Menu(){
 	}
 
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
 		bg = new Animation(new SpriteSheet("res/Maps/mm.png",700,500), 400);
+		bgMusic = new Music("res/Sounds/bg.wav");
+		thunder = new Sound("res/Sounds/thun.ogg");
+		bgMusic.play();
+        thunder.loop();
 	}
 
 	//WHERE YOU PUT THE GRAPHICS THAT WILL SHOW ON THE SCREEN
@@ -29,6 +38,8 @@ class Menu extends BasicGameState{
 
 		if((xMouse > 488 && xMouse < 633)&& (yMouse > 136 && yMouse < 187 )){ //
 			if(input.isMouseButtonDown(0) && getID() == 0 ){
+				bgMusic.stop();
+				thunder.stop();
 				sbg.enterState(1);
 			}
 		}
