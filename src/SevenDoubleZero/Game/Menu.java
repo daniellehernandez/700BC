@@ -18,9 +18,9 @@ class Menu extends BasicGameState{
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
 		bg = new Animation(new SpriteSheet("res/Maps/mm.png",700,500), 400);
 		bgMusic = new Music("res/Sounds/bg.wav");
-		thunder = new Sound("res/Sounds/thun.ogg");
-		bgMusic.play();
-        thunder.loop();
+		thunder = new Sound("res/Sounds/thun.wav");
+
+
 	}
 
 	//WHERE YOU PUT THE GRAPHICS THAT WILL SHOW ON THE SCREEN
@@ -38,8 +38,6 @@ class Menu extends BasicGameState{
 
 		if((xMouse > 488 && xMouse < 633)&& (yMouse > 136 && yMouse < 187 )){ //
 			if(input.isMouseButtonDown(0) && getID() == 0 ){
-				bgMusic.stop();
-				thunder.stop();
 				sbg.enterState(1);
 			}
 		}
@@ -48,4 +46,25 @@ class Menu extends BasicGameState{
 	public int getID() {
 		return 0;
 	}
+
+	public void enter(GameContainer gc, StateBasedGame sbg){
+		try{
+			super.enter(gc, sbg);
+		}catch (SlickException e){
+			e.printStackTrace();
+		}
+		bgMusic.loop();
+		thunder.loop();
+	}
+
+	public void leave(GameContainer gc, StateBasedGame sbg){
+		try{
+			super.enter(gc, sbg);
+		}catch (SlickException e){
+			e.printStackTrace();
+		}
+		bgMusic.stop();
+		thunder.stop();
+	}
+
 }
