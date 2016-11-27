@@ -1,8 +1,9 @@
 package SevenDoubleZero.Game;
 
-import org.newdawn.slick.*;
-import org.newdawn.slick.state.*;
 import org.lwjgl.input.Mouse;
+import org.newdawn.slick.*;
+import org.newdawn.slick.state.BasicGameState;
+import org.newdawn.slick.state.StateBasedGame;
 
 class Menu extends BasicGameState{
 	private Animation bg;
@@ -14,10 +15,8 @@ class Menu extends BasicGameState{
 
 	public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
 		bg = new Animation(new SpriteSheet("res/Maps/mm.png",700,500), 400);
-		bgMusic = new Music("res/Sounds/bg.wav");
-		thunder = new Sound("res/Sounds/thun.ogg");
-		bgMusic.play();
-		thunder.loop();
+		bgMusic = new Music("res/Sounds/main_menu_background_music.ogg");
+		thunder = new Sound("res/Sounds/thunderogg.ogg");
 	}
 
 	//WHERE YOU PUT THE GRAPHICS THAT WILL SHOW ON THE SCREEN
@@ -38,6 +37,26 @@ class Menu extends BasicGameState{
 				sbg.enterState(1);
 			}
 		}
+	}
+
+	public void enter(GameContainer gc, StateBasedGame sbg){
+		try{
+			super.enter(gc, sbg);
+		}catch (SlickException e){
+			e.printStackTrace();
+		}
+		bgMusic.loop();
+		thunder.loop();
+	}
+
+	public void leave(GameContainer gc, StateBasedGame sbg){
+		try{
+			super.enter(gc, sbg);
+		}catch (SlickException e){
+			e.printStackTrace();
+		}
+		bgMusic.stop();
+		thunder.stop();
 	}
 
 	public int getID() {

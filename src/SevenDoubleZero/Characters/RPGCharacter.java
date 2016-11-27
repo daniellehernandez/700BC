@@ -5,8 +5,6 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Image;
 import org.newdawn.slick.SlickException;
 
-import javax.swing.*;
-
 public abstract class RPGCharacter {
     public String name;
     private int health;
@@ -14,18 +12,23 @@ public abstract class RPGCharacter {
     private int damage;
     private int spDamage;
     private int pan;
+    public int reach;
 
     public Image staticImage;
+    public Image charHurt;
     public Animation charAnimate;
     public Animation charATK;
     public Animation charCRO;
     public Animation charJUM;
 
     public int x;
-    public int y = 250;
+    public int y;
     public int realX;
     public int hurtX;
     private boolean descending = false;
+    public boolean up = true;
+    public boolean down = false;
+    public boolean corner = false;
     public boolean onceJumped = false;
     public boolean move = false;
     public boolean atk = false;
@@ -36,12 +39,14 @@ public abstract class RPGCharacter {
     public boolean attacked = false;
     public boolean hurt = false;
 
-    RPGCharacter(Image staticImage, Animation charAnimate, Animation charATK, Animation charCRO, Animation charJUM, int health, int manna, int damage, int spDamage, int pan, String name) throws SlickException {
-        this(staticImage, charAnimate, charATK, charCRO, charJUM, health, manna, 10, damage, spDamage, pan, false, name);
+    RPGCharacter(Image staticImage, int y, Animation charAnimate, Animation charATK, Animation charCRO, Animation charJUM, int health, int manna, int damage, int spDamage, int pan, int reach, String name) throws SlickException {
+        this(staticImage, y, charAnimate, charATK, charCRO, charJUM, health, manna, damage, spDamage, pan, reach, 10, false, name);
     }
 
-    RPGCharacter(Image staticImage, Animation charAnimate, Animation charATK, Animation charCRO, Animation charJUM, int health, int manna, int damage, int spDamage, int pan, int x, boolean direction, String name) throws SlickException {
+    RPGCharacter(Image staticImage, int y, Animation charAnimate, Animation charATK, Animation charCRO, Animation charJUM, int health, int manna, int damage, int spDamage, int pan, int reach, int x, boolean direction, String name) throws SlickException {
         this.staticImage = staticImage;
+        this.charHurt = staticImage;
+        this.y = y;
         this.charAnimate = charAnimate;
         this.charATK = charATK;
         this.charCRO = charCRO;
@@ -51,6 +56,7 @@ public abstract class RPGCharacter {
         this.damage = damage;
         this.spDamage = spDamage;
         this.pan = pan;
+        this.reach = reach;
         this.x = x;
         this.realX = x;
         this.direction = direction;
@@ -90,11 +96,15 @@ public abstract class RPGCharacter {
         }
     }
 
-    public void attack(RPGCharacter opponent, JFrame frame, GameContainer gc) {
-        if (charATK.getCurrentFrame().equals(charATK.getImage(3)) && ((direction && realX > opponent.realX) || (!direction && realX < opponent.realX))) {
+    public boolean cornered(RPGCharacter opponent, int x){
+        return opponent.attacked && (x <= -75 || x >= 425);
+    }
+
+    public void attack(RPGCharacter opponent, Animation newLevel, GameContainer gc) {
+        if (charATK.getCurrentFrame().equals(charATK.getImage(1)) && ((direction && realX > opponent.realX) || (!direction && realX < opponent.realX))) {
             attacked = true;
         }
-        else if (charATK.getCurrentFrame().equals(charATK.getImage(4)) && attacked) {
+        else if (charATK.getCurrentFrame().equals(charATK.getImage(2)) && attacked) {
             opponent.takeDamage(getDamage());
             attacked = false;
             opponent.hurt = true;
@@ -103,11 +113,10 @@ public abstract class RPGCharacter {
             } else {
                 opponent.hurtX = opponent.realX + 70;
             }
-        }
+        }/*
         if (!opponent.isAlive()) {
-            JOptionPane.showMessageDialog(frame, "Congratulations! You just have defeated AI " + opponent.name, "You won", JOptionPane.OK_OPTION);
-            gc.exit();
-        }
+            newLevel.draw(45, 45);
+        }*/
         if (onceJumped) {
             jump(charATK);
         } else {
@@ -153,7 +162,11 @@ public abstract class RPGCharacter {
     }
 
     public void takeDamage(int damage){
-        setHealth(getHealth() - damage);
+        if (getHealth() - damage < 0) {
+            setHealth(0);
+        } else {
+            setHealth(getHealth() - damage);
+        }
     }
 
     public boolean isAlive() {

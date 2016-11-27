@@ -8,6 +8,7 @@ class PlayScreen extends BasicGameState{
     private boolean animate = false;
     private Animation cloudAnimate;
     private boolean start = true;
+    private Music bgMusic1;
 
     PlayScreen(){
 
@@ -16,6 +17,10 @@ class PlayScreen extends BasicGameState{
 
     public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
         cloudAnimate = new Animation(new SpriteSheet("res/Maps/maps.png",700,500), 500);
+        bgMusic1 = new Music("res/Sounds/mapbg.wav");
+        if(!bgMusic1.playing()) {
+            bgMusic1.play(1f, 1f);
+        }
     }
 
 
@@ -30,9 +35,7 @@ class PlayScreen extends BasicGameState{
             g.setColor(Color.black);
             g.drawString("[Press Space]", 300, 450);
         }
-
     }
-
 
     public void update(GameContainer gc, StateBasedGame sbg, int delta)throws SlickException {
         Input input = gc.getInput();
@@ -46,9 +49,26 @@ class PlayScreen extends BasicGameState{
         if(input.isKeyPressed(Input.KEY_SPACE) && !start && getID() == 1 ){
             sbg.enterState(3);
         }
-
-
     }
+
+    public void enter(GameContainer gc, StateBasedGame sbg){
+        try{
+            super.enter(gc, sbg);
+        }catch (SlickException e){
+            e.printStackTrace();
+        }
+        bgMusic1.loop();
+    }
+
+    public void leave(GameContainer gc, StateBasedGame sbg){
+        try{
+            super.enter(gc, sbg);
+        }catch (SlickException e){
+            e.printStackTrace();
+        }
+        bgMusic1.stop();
+    }
+
 	public int getID() {
 		return 1;
 	}

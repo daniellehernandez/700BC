@@ -2,7 +2,6 @@ package SevenDoubleZero.Game;
 
 import SevenDoubleZero.Characters.Apollo;
 import SevenDoubleZero.Characters.Athena;
-import SevenDoubleZero.Characters.Melee;
 import SevenDoubleZero.Characters.RPGCharacter;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
@@ -26,24 +25,28 @@ class Parthenon extends BasicGameState {
 
     public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
         bg.draw(0, 0);
-        g.drawString("Your HP: " + player.getHealth(), 100, 10);
+        g.drawString("Your HP: " + player.getHealth(), 50, 10);
         g.drawString("Enemy HP: " + ai.getHealth(), 250, 10);
         JFrame frame = new JFrame("Game Over");
 
-        if (player.hurt) {
-            if (player.realX < ai.realX && player.realX > player.hurtX) {
-                player.x--;
-                player.realX--;
-                player.charAnimate.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
-            } else if (player.realX > ai.realX && player.realX <= player.hurtX) {
-                player.x++;
-                player.realX++;
-                player.charAnimate.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
-            } else {
-                player.hurt = false;
+        if (player.atk) {
+            if (player.charATK.getCurrentFrame().equals(player.charATK.getImage(3))) {
+                player.attacked = true;
             }
-        } else if (player.atk) {
-            player.attack(ai, frame, gc);
+            else if (player.charATK.getCurrentFrame().equals(player.charATK.getImage(4)) && player.attacked) {
+                ai.takeDamage((float) 25);
+                player.attacked = false;
+            }
+            if (!ai.isAlive()) {
+                JOptionPane.showMessageDialog(frame, "Congratulations! You just have defeated AI " + ai.name, "You won", JOptionPane.OK_OPTION);
+                gc.exit();
+            }
+            if (player.onceJumped) {
+                player.jump(player.charATK);
+            } else {
+                player.charATK.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
+            }
+            player.atk = false;
         } else if (player.move) {
             if (player.onceJumped) {
                 player.jump();
@@ -66,19 +69,7 @@ class Parthenon extends BasicGameState {
     }
 
     private void AI(Graphics g, GameContainer gc, JFrame frame) throws SlickException {
-        if (ai.hurt) {
-            if (ai.realX < player.realX && ai.realX > ai.hurtX) {
-                ai.x--;
-                ai.realX--;
-                ai.charAnimate.getCurrentFrame().getFlippedCopy(!player.direction, false).draw(ai.x, ai.y);
-            } else if (ai.realX > player.realX && ai.realX <= ai.hurtX) {
-                ai.x++;
-                ai.realX++;
-                ai.charAnimate.getCurrentFrame().getFlippedCopy(!player.direction, false).draw(ai.x, ai.y);
-            } else {
-                ai.hurt = false;
-            }
-        } else if (ai.atk) { // ATTACK
+        if (ai.atk) { // ATTACK
             editDirection();
             if (ai.realX > player.realX) {
                 ai.charATK.getCurrentFrame().getFlippedCopy(true, false).draw(ai.x, ai.y);
@@ -89,42 +80,24 @@ class Parthenon extends BasicGameState {
                 ai.attacked = true;
             }
             else if (ai.charATK.getCurrentFrame().equals(ai.charATK.getImage(4)) && ai.attacked) {
-                player.takeDamage(ai.getDamage());
+                player.takeDamage((float) 20);
                 ai.attacked = false;
-                player.hurt = true;
-                if (player.realX < ai.realX) {
-                    player.hurtX = player.realX - 40;
-                } else {
-                    player.hurtX = player.realX + 40;
-                }
             }
             if (!player.isAlive()) {
                 JOptionPane.showMessageDialog(frame, "You were killed by AI " + ai.name + ".", "You lost", JOptionPane.OK_OPTION);
                 gc.exit();
             }
-            //ai.atk = false;
+            ai.atk = false;
         } else if (ai.move) { // WALK TOWARDS PLAYER
             editDirection();
             if (ai.realX > player.realX) {
-                if (ai instanceof Melee) {
-                    ai.direction = true;
-                    ai.x--;
-                    ai.realX--;
-                } else {
-                    ai.direction = false;
-                    ai.x++;
-                    ai.realX++;
-                }
+                ai.direction = true;
+                ai.x--;
+                ai.realX--;
             } else if (ai.realX < player.realX) {
-                if (ai instanceof Melee) {
-                    ai.direction = false;
-                    ai.x++;
-                    ai.realX++;
-                } else {
-                    ai.direction = true;
-                    ai.x--;
-                    ai.realX--;
-                }
+                ai.direction = false;
+                ai.x++;
+                ai.realX++;
             }
             if (ai.realX > player.realX) {
                 ai.charAnimate.getCurrentFrame().getFlippedCopy(true, false).draw(ai.x, ai.y);
@@ -145,14 +118,14 @@ class Parthenon extends BasicGameState {
             ai.direction = true;
             ai.firstTimeOnRight = true;
             if (ai.firstTimeOnLeft) {
-                ai.x -= ai.getPan();
+                ai.x -= 70;
                 ai.firstTimeOnLeft = false;
             }
         } else if (ai.realX < player.realX) { // ai <- pla
             ai.direction = false;
             ai.firstTimeOnLeft = true;
             if (ai.firstTimeOnRight) {
-                ai.x += ai.getPan();
+                ai.x += 70;
                 ai.firstTimeOnRight = false;
             }
         }
@@ -169,6 +142,7 @@ class Parthenon extends BasicGameState {
 
         if (input.isKeyDown(Input.KEY_A)) {
             player.atk = true;
+            ai.atk = true;
         }
         if (input.isKeyDown(Input.KEY_DOWN)) {
             player.crouch = true;
@@ -184,7 +158,7 @@ class Parthenon extends BasicGameState {
             player.move = true;
             player.firstTimeOnRight = true;
             if (player.firstTimeOnLeft) {
-                player.x -= player.getPan();
+                player.x -= 70;
                 player.firstTimeOnLeft = false;
             } else {
                 player.x--;
@@ -200,21 +174,16 @@ class Parthenon extends BasicGameState {
             player.move = true;
             player.firstTimeOnLeft = true;
             if (player.firstTimeOnRight) {
-                player.x += player.getPan();
+                player.x += 70;
                 player.firstTimeOnRight = false;
             } else {
                 player.x++;
                 player.realX++;
             }
         }
-        if (ai instanceof Melee) {
-            ai.atk = ai.isNear(player, 40);
-            ai.move = !(ai.isNear(player, 150));
-        }
-        else {
-            ai.atk = !(ai.isNear(player, 60));
-            ai.move = ai.isNear(player, 60);
-        }
+
+        ai.atk = ai.isNear(player, 40);
+        ai.move = !(ai.isNear(player, 150));
     }
 
 
