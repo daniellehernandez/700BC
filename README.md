@@ -39,7 +39,12 @@
                                                            S T O R Y
                                                    _________________________
                                                         
-      The setting is in 700 B.C., Artemis (goddess of the moon), Athena (goddess of wisdom), Hermes (the messenger god), Hades (god of the underworld) and Apollo (god od the sun) were on Earth scouting for giant rebels when the gates of Moun Olympus was forcibly closed. Apparently, Chronos was accidentally revived by a demigod, named Stultus. Stultus then rushes to the 5 gods outside Mount Olympus to seek help but to his dismay he found out that Chronus was a step ahead of him and that he has already compelled the gods ... driven to a corner stultus takes a special potion that can only be used once. He must choose which  god can save Mount Olympus and redeem his honor as a demigod.
+      The setting is in 700 B.C., Artemis (goddess of the moon), Athena (goddess of wisdom), Hermes (the messenger god), 
+      Hades (god of the underworld) and Apollo (god od the sun) were on Earth scouting for giant rebels when the gates of Mount
+      Olympus was forcibly closed. Apparently, Chronos was accidentally revived by a demigod, named Stultus. Stultus then rushes 
+      to the 5 gods outside Mount Olympus to seek help but to his dismay he found out that Chronus was a step ahead of him and 
+      that he has already compelled the gods ... driven to a corner stultus takes a special potion that can only be used once. 
+      He must choose which  god can save Mount Olympus and redeem his honor as a demigod.
                                                         
                                                
 
