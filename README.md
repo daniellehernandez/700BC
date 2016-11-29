@@ -34,10 +34,10 @@
                                                      LEFT KEY - WALK LEFT
                                                         A KEY - ATTACK
                                                         
-                                                       _________________________
+                                                   _________________________
 
-                                                               S T O R Y
-                                                       _________________________
+                                                           S T O R Y
+                                                   _________________________
 
 The setting is in 700 B.C., Artemis (goddess of the moon), Athena (goddess of wisdom), Hermes (the messenger god), Hades (god of the 
 underworld) and Apollo (god of the sun) were on Earth scouting for giant rebels when the gates of Mount Olympus was forcibly closed. 
