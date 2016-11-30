@@ -1,8 +1,6 @@
-package Game;
+package SevenDoubleZero.Game;
 
 import org.newdawn.slick.*;
-import org.newdawn.slick.Game;
-import org.newdawn.slick.Sound;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
 
@@ -23,23 +21,22 @@ class PlayScreen extends BasicGameState{
         if(!bgMusic1.playing()) {
             bgMusic1.play(1f, 1f);
         }
-        //bgMusic1.play();
-
+        gc.setShowFPS(false);
     }
 
 
     public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
         Image bg = new Image("res/Maps/1.png");
-        Image cloudConstant = new Image("res/Maps/7.png");
 
+        if(start) {
+            g.drawImage(bg, 0, 0);
+        }else if(animate){
             cloudAnimate.setLooping(false);
             cloudAnimate.draw(0, 0);
             g.setColor(Color.black);
             g.drawString("[Press Space]", 300, 450);
-
-
+        }
     }
-
 
     public void update(GameContainer gc, StateBasedGame sbg, int delta)throws SlickException {
         Input input = gc.getInput();
@@ -51,12 +48,9 @@ class PlayScreen extends BasicGameState{
         }
 
         if(input.isKeyPressed(Input.KEY_SPACE) && !start && getID() == 1 ){
-            sbg.enterState(3); //REDIRECTED AUTOMATICALLY IN PARTHENON FOR D MEANTIME
+            sbg.enterState(2);
         }
     }
-	public int getID() {
-		return 1;
-	}
 
     public void enter(GameContainer gc, StateBasedGame sbg){
         try{
@@ -73,6 +67,10 @@ class PlayScreen extends BasicGameState{
         }catch (SlickException e){
             e.printStackTrace();
         }
-            bgMusic1.stop();
+        bgMusic1.stop();
     }
+
+	public int getID() {
+		return 1;
+	}
 }

@@ -1,16 +1,14 @@
-package Game;
+package SevenDoubleZero.Game;
 
-import org.newdawn.slick.*;
-import org.newdawn.slick.Game;
-import org.newdawn.slick.Sound;
-import org.newdawn.slick.state.*;
 import org.lwjgl.input.Mouse;
+import org.newdawn.slick.*;
+import org.newdawn.slick.state.BasicGameState;
+import org.newdawn.slick.state.StateBasedGame;
 
 class Menu extends BasicGameState{
 	private Animation bg;
 	private Music bgMusic;
-	private org.newdawn.slick.Sound thunder;
-
+	private Sound thunder;
 
 	Menu(){
 	}
@@ -19,8 +17,7 @@ class Menu extends BasicGameState{
 		bg = new Animation(new SpriteSheet("res/Maps/mm.png",700,500), 400);
 		bgMusic = new Music("res/Sounds/bg.wav");
 		thunder = new Sound("res/Sounds/thun.wav");
-
-
+		gc.setShowFPS(false);
 	}
 
 	//WHERE YOU PUT THE GRAPHICS THAT WILL SHOW ON THE SCREEN
@@ -36,15 +33,14 @@ class Menu extends BasicGameState{
 		int yMouse = Mouse.getY();
 
 
-		if((xMouse > 488 && xMouse < 633)&& (yMouse > 136 && yMouse < 187 )){ //
-			if(input.isMouseButtonDown(0) && getID() == 0 ){
-				sbg.enterState(1);
-			}
-		}
-	}
+		System.out.println("x is " + xMouse + " and y is " + yMouse);
 
-	public int getID() {
-		return 0;
+
+		if((xMouse > 488 && xMouse < 633)&& (yMouse > 136 && yMouse < 187 && input.isMouseButtonDown(0) && getID() == 0 )){
+			sbg.enterState(1);
+		} else if ((xMouse > 488 && xMouse < 633)&& (yMouse > 98 && yMouse < 124 && input.isMouseButtonDown(0) && getID() == 0 )){
+			sbg.enterState(8);
+		}
 	}
 
 	public void enter(GameContainer gc, StateBasedGame sbg){
@@ -67,4 +63,7 @@ class Menu extends BasicGameState{
 		thunder.stop();
 	}
 
+	public int getID() {
+		return 0;
+	}
 }
