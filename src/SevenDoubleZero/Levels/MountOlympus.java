@@ -2,7 +2,9 @@ package SevenDoubleZero.Levels;
 
 import SevenDoubleZero.Characters.Hermes;
 import SevenDoubleZero.Characters.RPGCharacter;
+import SevenDoubleZero.Game.Heart;
 import SevenDoubleZero.Game.Hero;
+import SevenDoubleZero.Game.PowerUp;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
@@ -19,6 +21,8 @@ public class MountOlympus extends BasicGameState {
     private Sound walk;
     private Sound attack;
     private Sound hurt;
+    private PowerUp heart;
+    private int heartExistence;
 
     public MountOlympus() {
     }
@@ -52,6 +56,29 @@ public class MountOlympus extends BasicGameState {
             ai.charAnimate.getCurrentFrame().getFlippedCopy(ai.direction, false).draw(ai.x, ai.y);
             loseLevel.setLooping(false);
         } else {
+            if (heart == null) {
+                int randomNum = (int) (Math.random() * (4500 + (heartExistence * 500)));
+                System.out.println("Random number is " + randomNum);
+                if (randomNum == 1) {
+                    heart = new Heart();
+                    heart.setY(0);
+                    heart.setX((int) (Math.random() * (gc.getWidth() - heart.getImage().getWidth())));
+                    heartExistence++;
+                }
+            } else {
+                heart.getImage().draw(heart.getX(), heart.getY());
+                if (System.nanoTime() % 100 == 0) {
+                    System.out.println("I gotchu, now at " + (heart.getY() + 1));
+                    heart.setY(heart.getY() + 20);
+                }
+
+                if (heart.getY() >= gc.getHeight()) {
+                    heart = null;
+                } else if ((heart.getX() >= player.realX && heart.getX() <= player.realX + player.staticImage.getWidth()) && heart.getY() == player.y) {
+                    player.setHealth(player.getHealth() + 50);
+                    heart = null;
+                }
+            }
             if (player.hurt) {
                 if (player.realX < ai.realX && player.realX > player.hurtX) {
                     player.x--;
@@ -83,11 +110,11 @@ public class MountOlympus extends BasicGameState {
                 g.drawImage(player.staticImage.getFlippedCopy(player.direction, false), player.x, player.y);
             }
 
-            AI(g, gc);
+            AI(g);
         }
     }
 
-    private void AI(Graphics g, GameContainer gc) throws SlickException {
+    private void AI(Graphics g) throws SlickException {
         if (ai.x >= 450) {
             ai.x = 450;
             ai.realX = 450;

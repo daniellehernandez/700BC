@@ -1,8 +1,11 @@
 package SevenDoubleZero.Levels;
 
 import SevenDoubleZero.Characters.Apollo;
+import SevenDoubleZero.Characters.Athena;
 import SevenDoubleZero.Characters.RPGCharacter;
+import SevenDoubleZero.Game.Heart;
 import SevenDoubleZero.Game.Hero;
+import SevenDoubleZero.Game.PowerUp;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
@@ -15,11 +18,12 @@ public class Parthenon extends BasicGameState {
     private Animation loseLevel;
     private static final int AI_CHASE = 150;
     private Hero hero;
-    private boolean first = true;
     private Music bgMusic2;
     private Sound walk;
     private Sound attack;
     private Sound hurt;
+    private PowerUp heart;
+    private int heartExistence;
 
     public Parthenon() {
     }
@@ -27,7 +31,7 @@ public class Parthenon extends BasicGameState {
     public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
         hero = Hero.getInstance();
         player = hero.getPlayer();
-        ai = new Apollo(350, true);
+        ai = new Athena(350, true);
         bg = new Animation(new SpriteSheet("res/Maps/Parthenon.png", 700, 500), 1500);
         nextLevel = new Animation(new SpriteSheet("res/Maps/NewLevel.png", 450, 360), 150);
         loseLevel = new Animation(new SpriteSheet("res/Maps/losescreen.png", 450, 360), 700);
@@ -49,10 +53,13 @@ public class Parthenon extends BasicGameState {
             ai.charAnimate.getCurrentFrame().getFlippedCopy(ai.direction, false).draw(ai.x, ai.y);
             nextLevel.setLooping(false);
             if (nextLevel.isStopped()) {
-                if (!(player instanceof Apollo)) {
-                    sbg.enterState(6);
-                } else {
-                    sbg.enterState(7);
+                g.drawString("[PRESS SPACE TO CONTINUE]", 300, 450);
+                if (gc.getInput().isKeyPressed(Input.KEY_SPACE)) {
+                    if (!(player instanceof Apollo)) {
+                        sbg.enterState(6);
+                    } else {
+                        sbg.enterState(7);
+                    }
                 }
             }
         } else if (player.getHealth() <= 0) {
@@ -61,6 +68,29 @@ public class Parthenon extends BasicGameState {
             ai.charAnimate.getCurrentFrame().getFlippedCopy(ai.direction, false).draw(ai.x, ai.y);
             loseLevel.setLooping(false);
         }else {
+            if (heart == null) {
+                int randomNum = (int) (Math.random() * (3000 + (heartExistence * 500)));
+                System.out.println("Random number is " + randomNum);
+                if (randomNum == 1) {
+                    heart = new Heart();
+                    heart.setY(0);
+                    heart.setX((int) (Math.random() * (gc.getWidth() - heart.getImage().getWidth())));
+                    heartExistence++;
+                }
+            } else {
+                heart.getImage().draw(heart.getX(), heart.getY());
+                if (System.nanoTime() % 100 == 0) {
+                    System.out.println("I gotchu, now at " + (heart.getY() + 1));
+                    heart.setY(heart.getY() + 20);
+                }
+
+                if (heart.getY() >= gc.getHeight()) {
+                    heart = null;
+                } else if ((heart.getX() >= player.realX && heart.getX() <= player.realX + player.staticImage.getWidth()) && heart.getY() == player.y) {
+                    player.setHealth(player.getHealth() + 50);
+                    heart = null;
+                }
+            }
             if (player.hurt) {
                 if (player.realX < ai.realX && player.realX > player.hurtX) {
                     player.x--;
@@ -92,11 +122,11 @@ public class Parthenon extends BasicGameState {
                 g.drawImage(player.staticImage.getFlippedCopy(player.direction, false), player.x, player.y);
             }
 
-            AI(g, gc);
+            AI(g);
         }
     }
 
-    private void AI(Graphics g, GameContainer gc) throws SlickException {
+    private void AI(Graphics g) throws SlickException {
         if (ai.x >= 450) {
             ai.x = 450;
             ai.realX = 450;

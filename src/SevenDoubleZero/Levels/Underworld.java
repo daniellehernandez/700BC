@@ -1,10 +1,9 @@
 package SevenDoubleZero.Levels;
 
-import SevenDoubleZero.Characters.Artemis;
-import SevenDoubleZero.Characters.Flying;
-import SevenDoubleZero.Characters.Hades;
-import SevenDoubleZero.Characters.RPGCharacter;
+import SevenDoubleZero.Characters.*;
+import SevenDoubleZero.Game.Heart;
 import SevenDoubleZero.Game.Hero;
+import SevenDoubleZero.Game.PowerUp;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
@@ -21,8 +20,8 @@ public class Underworld extends BasicGameState {
     private Sound walk;
     private Sound attack;
     private Sound hurt;
-    private Image heart;
-    private int randomNum;
+    private int heartExistence = 0;
+    private PowerUp heart = null;
 
     public Underworld() throws SlickException {
     }
@@ -32,18 +31,15 @@ public class Underworld extends BasicGameState {
         player = hero.getPlayer();
         ai = new Hades(350, true);
         bg = new Animation(new SpriteSheet("res/Maps/Underworld.png", 700, 500), 1500);
-        nextLevel = new Animation(new SpriteSheet("res/Maps/NewLevel.png", 450, 360), 150);
+        nextLevel = new Animation(new SpriteSheet("res/Maps/NewLevel.png", 450, 360), 700);
         loseLevel = new Animation(new SpriteSheet("res/Maps/losescreen.png", 450, 360), 700);
         bgMusic2 = new Music("res/Sounds/gamebg.wav");
         attack = new Sound("res/Sounds/attack.wav");
         walk = new Sound("res/Sounds/walkk.wav");
         hurt = new Sound("res/Sounds/hurt.wav");
         gc.setShowFPS(false);
-        randomNum = (int) (Math.random() * 10);
-        heart = new Image("res/Maps/heart.png").getScaledCopy(10, 10);
 
     }
-
 
     public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
         bg.draw(0, 0);
@@ -51,18 +47,20 @@ public class Underworld extends BasicGameState {
         g.drawString("Your HP: " + player.getHealth(), 100, 10);
         g.drawString("Enemy HP: " + ai.getHealth(), 250, 10);
 
-
-
         if (ai.getHealth() <= 0) {
-            nextLevel.draw(gc.getWidth()/5, gc.getHeight()/10);
+            nextLevel.getCurrentFrame().draw(gc.getWidth()/5, gc.getHeight()/10);
             player.charAnimate.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
             ai.charAnimate.getCurrentFrame().getFlippedCopy(ai.direction, false).draw(ai.x, ai.y);
             nextLevel.setLooping(false);
-            if (nextLevel.isStopped()) {
-                if (!(player instanceof Artemis)) {
-                    sbg.enterState(5);
-                } else {
-                    sbg.enterState(6);
+            if (nextLevel.getCurrentFrame() == nextLevel.getImage(8)) {
+                g.drawString("[PRESS SPACE TO CONTINUE]", 225, 450);
+                if (gc.getInput().isKeyPressed(Input.KEY_SPACE)) {
+                    ai.setHealth(400);
+                    if (!(player instanceof Athena)) {
+                        sbg.enterState(4);
+                    } else {
+                        sbg.enterState(5);
+                    }
                 }
             }
         } else if (player.getHealth() <= 0) {
@@ -71,31 +69,30 @@ public class Underworld extends BasicGameState {
             ai.charAnimate.getCurrentFrame().getFlippedCopy(ai.direction, false).draw(ai.x, ai.y);
             loseLevel.setLooping(false);
         } else {
-            if (true) {
-                float heartY = 0;
-                float heartX =(float) (Math.random() * gc.getWidth());
-
-                heart.draw(heartX, heartY);
-                while (true) {
-                    try {
-                        //sending the actual Thread of execution to sleep X milliseconds
-                        Thread.sleep(1000);
-                        System.out.println("SHIT");
-                    } catch (Exception e) {
-                        //heartY++;
-                    }
-
-                    if (heartY >= gc.getHeight()) {
-                        break;
-                    }
-                    if ((heartX >= player.realX && heartX <= player.realX + player.staticImage.getWidth()) && heartY == player.y) {
-                        player.setHealth(player.getHealth() + 50);
-                        break;
-                    }
-
+            if (heart == null) {
+                int randomNum = (int) (Math.random() * (2000 + (heartExistence * 500)));
+                System.out.println("Random number is " + randomNum);
+                if (randomNum == 1) {
+                    heart = new Heart();
+                    heart.setY(0);
+                    heart.setX((int) (Math.random() * (gc.getWidth() - heart.getImage().getWidth())));
+                    heartExistence++;
+                }
+            } else {
+                heart.getImage().draw(heart.getX(), heart.getY());
+                if (System.nanoTime() % 100 == 0) {
+                    System.out.println("I gotchu, now at " + (heart.getY() + 1));
+                    heart.setY(heart.getY() + 20);
                 }
 
+                if (heart.getY() >= gc.getHeight()) {
+                    heart = null;
+                } else if ((heart.getX() >= player.realX && heart.getX() <= player.realX + player.staticImage.getWidth()) && heart.getY() == player.y) {
+                    player.setHealth(player.getHealth() + 50);
+                    heart = null;
+                }
             }
+
             if (player.hurt) {
                 if (player.realX < ai.realX && player.realX > player.hurtX) {
                     player.x--;
@@ -127,11 +124,11 @@ public class Underworld extends BasicGameState {
                 g.drawImage(player.staticImage.getFlippedCopy(player.direction, false), player.x, player.y);
             }
 
-            AI(g, gc);
+            AI(g);
         }
     }
 
-    private void AI(Graphics g, GameContainer gc) throws SlickException {
+    private void AI(Graphics g) throws SlickException {
         if (ai.x >= 450) {
             ai.x = 450;
             ai.realX = 450;
@@ -143,16 +140,13 @@ public class Underworld extends BasicGameState {
             if (player.realX < ai.realX && !ai.isNear(player, ai.reach - 10)) {
                 ai.realX -= player.reach/3;
                 ai.x -= player.reach/3;
-                System.out.println("LEFt");
                 ai.charAnimate.getCurrentFrame().getFlippedCopy(true, false).draw(ai.x, ai.y);
             } else {
                 ai.realX += player.reach/3;
                 ai.x += player.reach/3;
-                System.out.println("RIGHT");
                 ai.charAnimate.getCurrentFrame().getFlippedCopy(false, false).draw(ai.x, ai.y);
             }
 
-            System.out.println("now hurting");
             if (!ai.isNear(player, player.reach) || !player.attacked) {
                 ai.hurt = false;
             }
@@ -189,7 +183,6 @@ public class Underworld extends BasicGameState {
                 }
             }
         } else if (ai.atk) { // ATTACK
-            System.out.println("now attacking");
             if (ai instanceof Flying) {
                 ai.y = 150;
             }
@@ -214,7 +207,6 @@ public class Underworld extends BasicGameState {
             }
             //ai.atk = false;
         } else if (player.atk || ai.move) { // WALK TOWARDS PLAYER
-            System.out.println("now moving");
             if (ai instanceof Flying) {
                 if (ai.up) {
                     ai.y--;
