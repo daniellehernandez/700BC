@@ -1,8 +1,6 @@
 package SevenDoubleZero.Levels;
 
-import SevenDoubleZero.Characters.Apollo;
-import SevenDoubleZero.Characters.Hermes;
-import SevenDoubleZero.Characters.RPGCharacter;
+import SevenDoubleZero.Characters.*;
 import SevenDoubleZero.Game.Heart;
 import SevenDoubleZero.Game.Hero;
 import SevenDoubleZero.Game.PowerUp;
@@ -24,6 +22,11 @@ public class Archadia extends BasicGameState {
     private Sound hurt;
     private PowerUp heart;
     private int heartExistence = 0;
+    private Animation confetti;
+    private Animation winScreen;
+    private Image map;
+    private Image check;
+    private boolean ended = false;
 
     public Archadia() {
     }
@@ -33,97 +36,129 @@ public class Archadia extends BasicGameState {
         player = hero.getPlayer();
         ai = new Apollo(350, true);
         bg = new Animation(new SpriteSheet("res/Maps/Archadia.png", 700, 500), 1500);
-        nextLevel = new Animation(new SpriteSheet("res/Maps/NewLevel.png", 450, 360), 150);
+        nextLevel = new Animation(new SpriteSheet("res/Maps/NewLevel.png", 450, 360), 700);
         loseLevel = new Animation(new SpriteSheet("res/Maps/losescreen.png", 450, 360), 700);
         bgMusic2 = new Music("res/Sounds/gamebg.wav");
         attack = new Sound("res/Sounds/attack.wav");
         walk = new Sound("res/Sounds/walkk.wav");
         hurt = new Sound("res/Sounds/hurt.wav");
+        confetti = new Animation(new SpriteSheet("res/Maps/conf.png", 700, 500), 500);
+        winScreen = new Animation(new SpriteSheet("res/Maps/endscreen.png", 450, 360), 150);
+        map = new Image("res/Maps/StaticMap.png");
+        check = new Image("res/Maps/check.png").getScaledCopy(25, 25);
+        ended = false;
         gc.setShowFPS(false);
     }
 
     public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
-        bg.draw(0, 0);
+        if (!ended) {
+            bg.draw(0, 0);
 
-        g.drawString("Your HP: " + player.getHealth(), 100, 10);
-        g.drawString("Enemy HP: " + ai.getHealth(), 250, 10);
+            g.drawString("Your HP: " + player.getHealth(), 100, 10);
+            g.drawString("Enemy HP: " + ai.getHealth(), 250, 10);
 
-        if (ai.getHealth() <= 0) {
-            nextLevel.draw(gc.getWidth()/5, gc.getHeight()/5);
-            player.charAnimate.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
-            ai.charAnimate.getCurrentFrame().getFlippedCopy(ai.direction, false).draw(ai.x, ai.y);
-            nextLevel.setLooping(false);
-            if (nextLevel.isStopped()) {
-                g.drawString("[PRESS SPACE TO CONTINUE]", 300, 450);
-                if (gc.getInput().isKeyPressed(Input.KEY_SPACE)) {
-                    if (!(player instanceof Hermes)) {
-                        sbg.enterState(7);
-                    } else {
-                        // TODO GAME OVER YOU WIN
+            if (ai.getHealth() <= 0) {
+                nextLevel.setLooping(false);
+                nextLevel.draw(gc.getWidth() / 5, gc.getHeight() / 10);
+                player.charAnimate.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
+                ai.charAnimate.getCurrentFrame().getFlippedCopy(ai.direction, false).draw(ai.x, ai.y);
+                if (nextLevel.getCurrentFrame() == nextLevel.getImage(8)) {
+                    g.drawString("[PRESS SPACE TO CONTINUE]", 220, 450);
+                    if (gc.getInput().isKeyPressed(Input.KEY_SPACE)) {
+                        ai.setHealth(400);
+                        ended = true;
                     }
                 }
-            }
-        } else if (player.getHealth() <= 0) {
-            loseLevel.draw(gc.getWidth()/5, gc.getHeight()/10);
-            player.charAnimate.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
-            ai.charAnimate.getCurrentFrame().getFlippedCopy(ai.direction, false).draw(ai.x, ai.y);
-            loseLevel.setLooping(false);
-        }
-        else {if (heart == null) {
-            int randomNum = (int) (Math.random() * (3500 + (heartExistence * 500)));
-            System.out.println("Random number is " + randomNum);
-            if (randomNum == 1) {
-                heart = new Heart();
-                heart.setY(0);
-                heart.setX((int) (Math.random() * (gc.getWidth() - heart.getImage().getWidth())));
-                heartExistence++;
-            }
-        } else {
-            heart.getImage().draw(heart.getX(), heart.getY());
-            if (System.nanoTime() % 100 == 0) {
-                System.out.println("I gotchu, now at " + (heart.getY() + 1));
-                heart.setY(heart.getY() + 20);
-            }
-
-            if (heart.getY() >= gc.getHeight()) {
-                heart = null;
-            } else if ((heart.getX() >= player.realX && heart.getX() <= player.realX + player.staticImage.getWidth()) && heart.getY() == player.y) {
-                player.setHealth(player.getHealth() + 50);
-                heart = null;
-            }
-        }
-            if (player.hurt) {
-                if (player.realX < ai.realX && player.realX > player.hurtX) {
-                    player.x--;
-                    player.realX--;
-                    g.drawImage(player.charHurt.getFlippedCopy(player.direction, false), player.x, player.y);
-                } else if (player.realX > ai.realX && player.realX <= player.hurtX) {
-                    player.x++;
-                    player.realX++;
-                    g.drawImage(player.charHurt.getFlippedCopy(player.direction, false), player.x, player.y);
-                } else {
-                    player.hurt = false;
+            } else if (player.getHealth() <= 0) {
+                loseLevel.draw(gc.getWidth() / 5, gc.getHeight() / 10);
+                player.charAnimate.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
+                ai.charAnimate.getCurrentFrame().getFlippedCopy(ai.direction, false).draw(ai.x, ai.y);
+                loseLevel.setLooping(false);
+                if (loseLevel.getCurrentFrame().equals(loseLevel.getImage(7))){
+                    loseLevel.stop();
+                    if (gc.getInput().isKeyPressed(Input.KEY_SPACE)) {
+                        g.drawString("[PRESS SPACE TO EXIT]", 200, 450);
+                        gc.exit();
+                    }
                 }
-            } else if (player.atk) {
-                player.attack(ai, nextLevel, gc);
-            } else if (player.move) {
-                if (player.onceJumped) {
+            } else {
+                if (heart == null) {
+                    int randomNum = (int) (Math.random() * (3500 + (heartExistence * 500)));
+                    System.out.println("Random number is " + randomNum);
+                    if (randomNum == 1) {
+                        heart = new Heart();
+                        heart.setY(0);
+                        heart.setX((int) (Math.random() * (gc.getWidth() - heart.getImage().getWidth())));
+                        heartExistence++;
+                    }
+                } else {
+                    heart.getImage().draw(heart.getX(), heart.getY());
+                    if (System.nanoTime() % 100 == 0) {
+                        System.out.println("I gotchu, now at " + (heart.getY() + 1));
+                        heart.setY(heart.getY() + 20);
+                    }
+
+                    if (heart.getY() >= gc.getHeight()) {
+                        heart = null;
+                    } else if ((heart.getX() >= player.realX && heart.getX() <= player.realX + player.staticImage.getWidth()) && heart.getY() == player.y) {
+                        player.setHealth(player.getHealth() + 50);
+                        heart = null;
+                    }
+                }
+                if (player.hurt) {
+                    if (player.realX < ai.realX && player.realX > player.hurtX) {
+                        player.x--;
+                        player.realX--;
+                        g.drawImage(player.charHurt.getFlippedCopy(player.direction, false), player.x, player.y);
+                    } else if (player.realX > ai.realX && player.realX <= player.hurtX) {
+                        player.x++;
+                        player.realX++;
+                        g.drawImage(player.charHurt.getFlippedCopy(player.direction, false), player.x, player.y);
+                    } else {
+                        player.hurt = false;
+                    }
+                } else if (player.atk) {
+                    player.attack(ai, nextLevel, gc);
+                } else if (player.move) {
+                    if (player.onceJumped) {
+                        player.jump();
+                    } else {
+                        player.charAnimate.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
+                    }
+                    player.move = false;
+                } else if (player.crouch) {
+                    player.y = 250;
+                    player.charCRO.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
+                    player.crouch = false;
+                } else if (player.onceJumped) {
                     player.jump();
                 } else {
-                    player.charAnimate.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
+                    g.drawImage(player.staticImage.getFlippedCopy(player.direction, false), player.x, player.y);
                 }
-                player.move = false;
-            } else if (player.crouch) {
-                player.y = 250;
-                player.charCRO.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
-                player.crouch = false;
-            } else if (player.onceJumped) {
-                player.jump();
-            } else {
-                g.drawImage(player.staticImage.getFlippedCopy(player.direction, false), player.x, player.y);
-            }
 
-            AI(g);
+                AI(g);
+            }
+        } else {
+            if (player instanceof Hermes) {
+                new Animation(new SpriteSheet("res/Maps/MountOlympus.png", 700, 500), 1500).draw(0, 0);
+                confetti.draw();
+                confetti.setLooping(false);
+                if (confetti.getCurrentFrame() == confetti.getImage(1)) {
+                    winScreen.draw(gc.getWidth() / 5, gc.getHeight() / 10);
+                    winScreen.setLooping(false);
+                    player.charAnimate.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
+                    if (gc.getInput().isKeyPressed(Input.KEY_SPACE)) {
+                        gc.exit();
+                    }
+                }
+            } else {
+                map.draw();
+                check.draw(493, 380);
+                check.draw(512, 79);
+                check.draw(155, 110);
+                check.draw(556, 254);
+                sbg.enterState(7);
+            }
         }
     }
 
@@ -259,7 +294,6 @@ public class Archadia extends BasicGameState {
         ai.charAnimate.update(delta);
         ai.charATK.update(delta);
         bg.update(delta);
-        nextLevel.update(delta);
 
         Input input = gc.getInput();
 

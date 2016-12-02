@@ -32,12 +32,8 @@ class Menu extends BasicGameState{
 		int xMouse = Mouse.getX();
 		int yMouse = Mouse.getY();
 
-
-		System.out.println("x is " + xMouse + " and y is " + yMouse);
-
-
 		if((xMouse > 488 && xMouse < 633)&& (yMouse > 136 && yMouse < 187 && input.isMouseButtonDown(0) && getID() == 0 )){
-			sbg.enterState(1);
+			sbg.enterState(2);
 		} else if ((xMouse > 488 && xMouse < 633)&& (yMouse > 98 && yMouse < 124 && input.isMouseButtonDown(0) && getID() == 0 )){
 			sbg.enterState(8);
 		}

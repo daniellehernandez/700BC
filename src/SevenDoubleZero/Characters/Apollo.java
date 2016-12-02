@@ -31,4 +31,5 @@ public class Apollo extends RPGCharacter {
                 new Animation(new SpriteSheet("res/Characters/Apollo/apolloJump.png", 350, 250) , 250),
                 HEALTH, MANNA, ORDINARY_DAMAGE, SPECIAL_DAMAGE, PAN, REACH, x, direction, "Apollo");
     }
+
 }

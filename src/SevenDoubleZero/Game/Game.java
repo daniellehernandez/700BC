@@ -34,10 +34,10 @@ public class Game extends StateBasedGame{
 	}
 
 	public void initStatesList(GameContainer gc) throws SlickException {
+		this.getState(InputPrompt).init(gc, this);
 		this.getState(Menu).init(gc,this);
 		this.getState(PlayScreen).init(gc,this);
 		this.getState(Characters).init(gc, this);
-		this.getState(InputPrompt).init(gc, this);
 		this.getState(Underworld).init(gc, this);
 		this.getState(Medusa).init(gc, this);
 		this.getState(Parthenon).init(gc,this);

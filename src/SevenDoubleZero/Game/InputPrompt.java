@@ -8,16 +8,17 @@ import org.newdawn.slick.state.StateBasedGame;
 
 public class InputPrompt extends BasicGameState{
     private Image bg;
-    private Hero hero = Hero.getInstance();
+    private Hero hero;
     private String intro = "[PRESS ENTER AFTER CHOOSING A CHARACTER]";
     private StateBasedGame sbg;
-    private int choice;
+    private int choice = 0;
 
     public InputPrompt() {
     }
 
     @Override
     public void init(GameContainer gc, StateBasedGame sbg) throws SlickException {
+        hero = Hero.getInstance();
         bg = new Image("res/Maps/ChoiceNo.png");
         this.sbg = sbg;
         gc.setShowFPS(false);
@@ -51,26 +52,32 @@ public class InputPrompt extends BasicGameState{
         }*/
 
         if (gc.getInput().isKeyPressed(Input.KEY_ENTER)) {
+            System.out.println("You chose " + choice);
             switch (choice) {
                 case 1:
                     hero.setHero(new Apollo());
-                    sbg.enterState(3);
+                    System.out.println("set to Apollo");
+                    sbg.enterState(1);
                     break;
                 case 2:
                     hero.setHero(new Artemis());
-                    sbg.enterState(3);
+                    System.out.println("set to Artemis");
+                    sbg.enterState(1);
                     break;
                 case 3:
                     hero.setHero(new Athena());
-                    sbg.enterState(3);
+                    System.out.println("set to Athena");
+                    sbg.enterState(1);
                     break;
                 case 4:
                     hero.setHero(new Hades());
-                    sbg.enterState(4);
+                    System.out.println("set to Hades");
+                    sbg.enterState(1);
                     break;
                 case 5:
                     hero.setHero(new Hermes());
-                    sbg.enterState(3);
+                    System.out.println("set to Hermes");
+                    sbg.enterState(1);
                     break;
                 default:
                     // do nothing
@@ -82,17 +89,22 @@ public class InputPrompt extends BasicGameState{
         try {
             if (x >= 109 && x <= 245 && y >= 118 && y <= 255) {
                 bg = new Image("res/Maps/Choice.png");
+                System.out.println("You chose Apollo");
                 choice = 1;
             } else if (x >= 280 && x <= 419 && y >= 118 && y <= 255) {
+                System.out.println("You chose Artemis");
                 bg = new Image("res/Maps/Choice1.png");
                 choice = 2;
             } else if (x >= 450 && x <= 587 && y >= 118 && y <= 255) {
+                System.out.println("You chose Athena");
                 bg = new Image("res/Maps/Choice2.png");
                 choice = 3;
             } else if (x >= 190 && x <= 328 && y >= 280 && y <= 420) {
+                System.out.println("You chose Hades");
                 bg = new Image("res/Maps/Choice3.png");
                 choice = 4;
             } else if (x >= 367 && x <= 505 && y >= 280 && y <= 420) {
+                System.out.println("You chose Hermes");
                 bg = new Image("res/Maps/Choice4.png");
                 choice = 5;
             } else {

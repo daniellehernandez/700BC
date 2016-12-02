@@ -172,4 +172,8 @@ public abstract class RPGCharacter {
     public boolean isAlive() {
         return getHealth() > 0;
     }
+
+    public String toString() {
+        return name;
+    }
 }

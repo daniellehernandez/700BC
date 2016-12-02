@@ -70,6 +70,8 @@ class CharacterScreen extends BasicGameState{
             hades.draw(0,0);
             hadesAni.draw(-30, 110);
         }
+
+        g.drawString("[PRESS ESC TO GO BACK]", 225, 450);
     }
 
 

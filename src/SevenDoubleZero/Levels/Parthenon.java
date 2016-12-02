@@ -1,11 +1,10 @@
 package SevenDoubleZero.Levels;
 
-import SevenDoubleZero.Characters.Apollo;
-import SevenDoubleZero.Characters.Athena;
-import SevenDoubleZero.Characters.RPGCharacter;
+import SevenDoubleZero.Characters.*;
 import SevenDoubleZero.Game.Heart;
 import SevenDoubleZero.Game.Hero;
 import SevenDoubleZero.Game.PowerUp;
+import org.lwjgl.input.Mouse;
 import org.newdawn.slick.*;
 import org.newdawn.slick.state.BasicGameState;
 import org.newdawn.slick.state.StateBasedGame;
@@ -24,6 +23,9 @@ public class Parthenon extends BasicGameState {
     private Sound hurt;
     private PowerUp heart;
     private int heartExistence;
+    private Image map;
+    private Image check;
+    private boolean ended = false;
 
     public Parthenon() {
     }
@@ -33,96 +35,121 @@ public class Parthenon extends BasicGameState {
         player = hero.getPlayer();
         ai = new Athena(350, true);
         bg = new Animation(new SpriteSheet("res/Maps/Parthenon.png", 700, 500), 1500);
-        nextLevel = new Animation(new SpriteSheet("res/Maps/NewLevel.png", 450, 360), 150);
+        nextLevel = new Animation(new SpriteSheet("res/Maps/NewLevel.png", 450, 360), 700);
         loseLevel = new Animation(new SpriteSheet("res/Maps/losescreen.png", 450, 360), 700);
         bgMusic2 = new Music("res/Sounds/gamebg.wav");
         attack = new Sound("res/Sounds/attack.wav");
         walk = new Sound("res/Sounds/walkk.wav");
         hurt = new Sound("res/Sounds/hurt.wav");
+        map = new Image("res/Maps/StaticMap.png");
+        check = new Image("res/Maps/check.png").getScaledCopy(25, 25);
+        ended = false;
         gc.setShowFPS(false);
     }
 
     public void render(GameContainer gc, StateBasedGame sbg, Graphics g) throws SlickException {
-        bg.draw(0, 0);
+        if (!ended) {
+            bg.draw(0, 0);
 
-        g.drawString("Your HP: " + player.getHealth(), 100, 10);
-        g.drawString("Enemy HP: " + ai.getHealth(), 250, 10);
-        if (ai.getHealth() <= 0) {
-            nextLevel.draw(gc.getWidth()/5, gc.getHeight()/5);
-            player.charAnimate.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
-            ai.charAnimate.getCurrentFrame().getFlippedCopy(ai.direction, false).draw(ai.x, ai.y);
-            nextLevel.setLooping(false);
-            if (nextLevel.isStopped()) {
-                g.drawString("[PRESS SPACE TO CONTINUE]", 300, 450);
-                if (gc.getInput().isKeyPressed(Input.KEY_SPACE)) {
-                    if (!(player instanceof Apollo)) {
-                        sbg.enterState(6);
-                    } else {
-                        sbg.enterState(7);
+            g.drawString("Your HP: " + player.getHealth(), 100, 10);
+            g.drawString("Enemy HP: " + ai.getHealth(), 250, 10);
+            if (ai.getHealth() <= 0) {
+                nextLevel.draw(gc.getWidth() / 5, gc.getHeight() / 10);
+                player.charAnimate.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
+                ai.charAnimate.getCurrentFrame().getFlippedCopy(ai.direction, false).draw(ai.x, ai.y);
+                nextLevel.setLooping(false);
+                if (nextLevel.getCurrentFrame() == nextLevel.getImage(8)) {
+                    g.drawString("[PRESS SPACE TO CONTINUE]", 300, 450);
+                    if (gc.getInput().isKeyPressed(Input.KEY_SPACE)) {
+                        ended = true;
                     }
                 }
-            }
-        } else if (player.getHealth() <= 0) {
-            loseLevel.draw(gc.getWidth()/5, gc.getHeight()/10);
-            player.charAnimate.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
-            ai.charAnimate.getCurrentFrame().getFlippedCopy(ai.direction, false).draw(ai.x, ai.y);
-            loseLevel.setLooping(false);
-        }else {
-            if (heart == null) {
-                int randomNum = (int) (Math.random() * (3000 + (heartExistence * 500)));
-                System.out.println("Random number is " + randomNum);
-                if (randomNum == 1) {
-                    heart = new Heart();
-                    heart.setY(0);
-                    heart.setX((int) (Math.random() * (gc.getWidth() - heart.getImage().getWidth())));
-                    heartExistence++;
+            } else if (player.getHealth() <= 0) {
+                loseLevel.draw(gc.getWidth() / 5, gc.getHeight() / 10);
+                player.charAnimate.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
+                ai.charAnimate.getCurrentFrame().getFlippedCopy(ai.direction, false).draw(ai.x, ai.y);
+                loseLevel.setLooping(false);
+                if (loseLevel.getCurrentFrame().equals(loseLevel.getImage(7))) {
+                    loseLevel.stop();
+                    if (gc.getInput().isKeyPressed(Input.KEY_SPACE)) {
+                        g.drawString("[PRESS SPACE TO EXIT]", 200, 450);
+                        gc.exit();
+                    }
                 }
             } else {
-                heart.getImage().draw(heart.getX(), heart.getY());
-                if (System.nanoTime() % 100 == 0) {
-                    System.out.println("I gotchu, now at " + (heart.getY() + 1));
-                    heart.setY(heart.getY() + 20);
-                }
-
-                if (heart.getY() >= gc.getHeight()) {
-                    heart = null;
-                } else if ((heart.getX() >= player.realX && heart.getX() <= player.realX + player.staticImage.getWidth()) && heart.getY() == player.y) {
-                    player.setHealth(player.getHealth() + 50);
-                    heart = null;
-                }
-            }
-            if (player.hurt) {
-                if (player.realX < ai.realX && player.realX > player.hurtX) {
-                    player.x--;
-                    player.realX--;
-                    g.drawImage(player.charHurt.getFlippedCopy(player.direction, false), player.x, player.y);
-                } else if (player.realX > ai.realX && player.realX <= player.hurtX) {
-                    player.x++;
-                    player.realX++;
-                    g.drawImage(player.charHurt.getFlippedCopy(player.direction, false), player.x, player.y);
+                if (heart == null) {
+                    int randomNum = (int) (Math.random() * (3000 + (heartExistence * 500)));
+                    if (randomNum == 1) {
+                        heart = new Heart();
+                        heart.setY(0);
+                        heart.setX((int) (Math.random() * (gc.getWidth() - heart.getImage().getWidth())));
+                        heartExistence++;
+                    }
                 } else {
-                    player.hurt = false;
+                    heart.getImage().draw(heart.getX(), heart.getY());
+                    if (System.nanoTime() % 100 == 0) {
+                        heart.setY(heart.getY() + 20);
+                    }
+
+                    if (heart.getY() >= gc.getHeight()) {
+                        heart = null;
+                    } else if ((heart.getX() >= player.realX && heart.getX() <= player.realX + player.staticImage.getWidth()) && heart.getY() == player.y) {
+                        player.setHealth(player.getHealth() + 50);
+                        heart = null;
+                    }
                 }
-            } else if (player.atk) {
-                player.attack(ai, nextLevel, gc);
-            } else if (player.move) {
-                if (player.onceJumped) {
+                if (player.hurt) {
+                    if (player.realX < ai.realX && player.realX > player.hurtX) {
+                        player.x--;
+                        player.realX--;
+                        g.drawImage(player.charHurt.getFlippedCopy(player.direction, false), player.x, player.y);
+                    } else if (player.realX > ai.realX && player.realX <= player.hurtX) {
+                        player.x++;
+                        player.realX++;
+                        g.drawImage(player.charHurt.getFlippedCopy(player.direction, false), player.x, player.y);
+                    } else {
+                        player.hurt = false;
+                    }
+                } else if (player.atk) {
+                    player.attack(ai, nextLevel, gc);
+                } else if (player.move) {
+                    if (player.onceJumped) {
+                        player.jump();
+                    } else {
+                        player.charAnimate.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
+                    }
+                    player.move = false;
+                } else if (player.crouch) {
+                    player.y = 250;
+                    player.charCRO.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
+                    player.crouch = false;
+                } else if (player.onceJumped) {
                     player.jump();
                 } else {
-                    player.charAnimate.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
+                    g.drawImage(player.staticImage.getFlippedCopy(player.direction, false), player.x, player.y);
                 }
-                player.move = false;
-            } else if (player.crouch) {
-                player.y = 250;
-                player.charCRO.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
-                player.crouch = false;
-            } else if (player.onceJumped) {
-                player.jump();
-            } else {
-                g.drawImage(player.staticImage.getFlippedCopy(player.direction, false), player.x, player.y);
-            }
 
-            AI(g);
+                AI(g);
+            }
+        } else {
+            map.draw();
+            if (player instanceof Apollo) {
+                check.draw(155, 110);
+            } else {
+                check.draw(356, 130);
+            }
+            check.draw(512, 79);
+            check.draw(556, 254);
+            check.draw(493, 380);
+            ai.setHealth(400);
+            System.out.println("X: " + Mouse.getX() + "; Y: " + Mouse.getY());
+            if (gc.getInput().isKeyPressed(Input.KEY_SPACE)) {
+                if (!(player instanceof Apollo)) {
+                    sbg.enterState(6);
+                } else {
+                    sbg.enterState(7);
+                }
+            }
         }
     }
 
@@ -138,16 +165,13 @@ public class Parthenon extends BasicGameState {
             if (player.realX < ai.realX && !ai.isNear(player, ai.reach - 10)) {
                 ai.realX -= player.reach/3;
                 ai.x -= player.reach/3;
-                System.out.println("LEFt");
                 ai.charAnimate.getCurrentFrame().getFlippedCopy(true, false).draw(ai.x, ai.y);
             } else {
                 ai.realX += player.reach/3;
                 ai.x += player.reach/3;
-                System.out.println("RIGHT");
                 ai.charAnimate.getCurrentFrame().getFlippedCopy(false, false).draw(ai.x, ai.y);
             }
 
-            System.out.println("now hurting");
             if (!ai.isNear(player, player.reach) || !player.attacked) {
                 ai.hurt = false;
             }
@@ -184,7 +208,6 @@ public class Parthenon extends BasicGameState {
                 }
             }
         } else if (ai.atk) { // ATTACK
-            System.out.println("now attacking");
             editDirection();
             if (ai.realX > player.realX) {
                 ai.charATK.getCurrentFrame().getFlippedCopy(true, false).draw(ai.x, ai.y);
@@ -206,7 +229,6 @@ public class Parthenon extends BasicGameState {
             }
             //ai.atk = false;
         } else if (player.atk || ai.move) { // WALK TOWARDS PLAYER
-            System.out.println("now moving");
             editDirection();
             if (ai.realX > player.realX) {
                 ai.direction = true;
@@ -258,7 +280,6 @@ public class Parthenon extends BasicGameState {
         ai.charAnimate.update(delta);
         ai.charATK.update(delta);
         bg.update(delta);
-        nextLevel.update(delta);
 
         Input input = gc.getInput();
 

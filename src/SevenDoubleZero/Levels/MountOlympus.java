@@ -1,7 +1,6 @@
 package SevenDoubleZero.Levels;
 
-import SevenDoubleZero.Characters.Hermes;
-import SevenDoubleZero.Characters.RPGCharacter;
+import SevenDoubleZero.Characters.*;
 import SevenDoubleZero.Game.Heart;
 import SevenDoubleZero.Game.Hero;
 import SevenDoubleZero.Game.PowerUp;
@@ -23,6 +22,7 @@ public class MountOlympus extends BasicGameState {
     private Sound hurt;
     private PowerUp heart;
     private int heartExistence;
+    private Animation confetti;
 
     public MountOlympus() {
     }
@@ -33,11 +33,12 @@ public class MountOlympus extends BasicGameState {
         ai = new Hermes(350, true);
         bg = new Animation(new SpriteSheet("res/Maps/MountOlympus.png", 700, 500), 1500);
         loseLevel = new Animation(new SpriteSheet("res/Maps/losescreen.png", 450, 360), 700);
-        nextLevel = new Animation(new SpriteSheet("res/Maps/NewLevel.png", 450, 360), 150);
+        nextLevel = new Animation(new SpriteSheet("res/Maps/endscreen.png", 450, 360), 150);
         bgMusic2 = new Music("res/Sounds/gamebg.wav");
         attack = new Sound("res/Sounds/attack.wav");
         walk = new Sound("res/Sounds/walkk.wav");
         hurt = new Sound("res/Sounds/hurt.wav");
+        confetti = new Animation(new SpriteSheet("res/Maps/conf.png", 700, 500), 500);
         gc.setShowFPS(false);
     }
 
@@ -48,17 +49,31 @@ public class MountOlympus extends BasicGameState {
         g.drawString("Enemy HP: " + ai.getHealth(), 250, 10);
 
         if (ai.getHealth() <= 0) {
-            // TODO end game
-            gc.exit();
+            confetti.draw();
+            confetti.setLooping(false);
+            if (confetti.getCurrentFrame() == confetti.getImage(1)) {
+                nextLevel.draw(gc.getWidth() / 5, gc.getHeight() / 10);
+                nextLevel.setLooping(false);
+                player.charAnimate.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
+                if (gc.getInput().isKeyPressed(Input.KEY_SPACE)) {
+                    gc.exit();
+                }
+            }
         } else if (player.getHealth() <= 0) {
-            loseLevel.draw(gc.getWidth()/5, gc.getHeight()/10);
+            loseLevel.draw(gc.getWidth() / 5, gc.getHeight() / 10);
             player.charAnimate.getCurrentFrame().getFlippedCopy(player.direction, false).draw(player.x, player.y);
             ai.charAnimate.getCurrentFrame().getFlippedCopy(ai.direction, false).draw(ai.x, ai.y);
             loseLevel.setLooping(false);
+            if (loseLevel.getCurrentFrame().equals(loseLevel.getImage(7))){
+                loseLevel.stop();
+                if (gc.getInput().isKeyPressed(Input.KEY_SPACE)) {
+                    g.drawString("[PRESS SPACE TO EXIT]", 200, 450);
+                    gc.exit();
+                }
+            }
         } else {
             if (heart == null) {
                 int randomNum = (int) (Math.random() * (4500 + (heartExistence * 500)));
-                System.out.println("Random number is " + randomNum);
                 if (randomNum == 1) {
                     heart = new Heart();
                     heart.setY(0);
@@ -68,7 +83,6 @@ public class MountOlympus extends BasicGameState {
             } else {
                 heart.getImage().draw(heart.getX(), heart.getY());
                 if (System.nanoTime() % 100 == 0) {
-                    System.out.println("I gotchu, now at " + (heart.getY() + 1));
                     heart.setY(heart.getY() + 20);
                 }
 
@@ -246,7 +260,6 @@ public class MountOlympus extends BasicGameState {
         ai.charAnimate.update(delta);
         ai.charATK.update(delta);
         bg.update(delta);
-        nextLevel.update(delta);
 
         Input input = gc.getInput();
 

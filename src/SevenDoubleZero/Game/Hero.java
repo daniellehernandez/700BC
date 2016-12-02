@@ -3,7 +3,7 @@ package SevenDoubleZero.Game;
 import SevenDoubleZero.Characters.RPGCharacter;
 
 public class Hero {
-    private static Hero hero= null;
+    private static Hero hero = null;
     RPGCharacter player;
 
     private Hero(){
@@ -18,6 +18,7 @@ public class Hero {
     }
 
     public void setHero(RPGCharacter player) {
+        System.out.println("Player set to " + player);
         this.player = player;
     }
 
